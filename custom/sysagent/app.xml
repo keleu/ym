@@ -1,0 +1,22 @@
+<app>
+    <name>代理商管理系统</name>
+    <type>service</type>
+    <description>代理商管理功能</description>
+
+    <author>
+        <name>商派伙伴易奇开发团队</name>
+        <email>613557178@qq.com</email>
+        <url>http://www.eqinfo.com.cn</url>
+    </author>
+
+    <parent_model_class>dbeav_model</parent_model_class>
+
+    <version>0.1</version>
+    <license>shopex license</license>
+
+    <depends>
+		<app>desktop</app>
+        <app>pam</app>
+	</depends>
+
+</app>

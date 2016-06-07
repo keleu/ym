@@ -1,0 +1,55 @@
+<!--填写物流信息弹框-->
+<form action="<{url action=topm_ctl_member_aftersales@sendziti}>" method="post" id="ajaxForm">
+  <input type='hidden' name='aftersales_bn' value='<{$aftersales_bn}>'>
+  <ul>
+    <{if $data}>
+    <li>
+      <select class="corp" name="ziti_id">
+        <option value="">请选择自提点</option>
+        <{foreach from=$data item=ziti}>
+        <option value="<{$ziti.id}>"><{$ziti.name}></option>
+        <{/foreach}>
+      </select>
+    </li>
+    <li>
+      <label></label>
+      <span class="form-act">详细地址：<span id="zitiaddr"></span></span>
+    </li>
+    <{else}>
+    <li>
+      <label></label>
+      <span class="form-act">您选择的收货地区不支持自提，请选择其他的配送方式</span>
+    </li>
+    <{/if}>
+  </ul>
+  <div class="aftersale-submit">
+    <div class="get-back"><button type="submit" class="ui-btn ui-btn-negative">提交回寄自提信息</button></div>
+  </div>
+</form>
+<script>
+var dataJson = '<{$data|json_encode}>';
+var dataZiti = $.parseJSON(dataJson);
+
+  $('.corp').change(function () {
+    if($(this).val()=='other'){
+      $('.other_corp').show();
+    }else{
+      $('.other_corp').hide();
+    }
+  })
+
+  var fth = $('.aftersale-submit').height();
+  $('.aftersale-submit').prev('ul').css('padding-bottom',fth);
+
+  /**
+  * ps ：获取详细地址
+  * Time：2016/05/09 21:59:34
+  * @author jianghui
+  */
+  $('[name="ziti_id"]').change(function(){
+    var id = $(this).val();
+    var addr = dataZiti[id]['area']+dataZiti[id]['addr'];
+    var href = "<button type='button' class='ui-btn-warning' onclick='mapto("+id+")'>地图</button>"
+    $('#zitiaddr').html(addr+href);
+  });
+</script>

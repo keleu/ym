@@ -1,0 +1,124 @@
+<style type="text/css">
+  .BMap{
+    width: 100%;
+    margin:10px auto;
+  }
+  .col-sm-4-j{
+      width: 100px;
+      float: left;position: relative;min-height: 1px;padding-left: 15px;    padding-right: 15px;
+  }
+  .col-sm-9-j{
+
+  }
+  .col-sm-5-j{
+    float: left;position: relative;min-height: 1px;padding-right: 15px;
+  }
+  .form-group-j{
+    clear: both;margin-left: -15px;margin-right: -15px;margin-bottom: 15px;line-height: 1.42857;
+  }
+  .form-group-j:after{
+    content: " ";display: table;
+  }
+  .control-label-j{
+    text-align: right;margin-bottom: 0;padding-top: 15px;
+  }
+  label{
+      display: inline-block;
+  }
+  #container{
+    width: 500px;
+    height:500px}
+  #container img{max-width: none!important  }
+  .coordinate{
+    width: 80px;
+    margin-right: 8px;
+  }
+  .map_container{
+    height:500px;
+    width:500px;
+    border: 1px solid #3C8DBC;
+    float:left;
+    margin-bottom: 30px;
+  }
+  .right_main{
+    height: 500px;
+    width:40%;
+    float: left;
+    margin-left: 20px;
+  }
+  .textarea {
+    border:0;  
+    background-color:transparent;
+    -moz-box-shadow:1px 1px 0 #E7E7E7;
+    -moz-box-sizing:border-box;
+    border-style:solid;
+    font-color:#000000;
+    height:52px;
+    margin:10px auto;
+   /* outline-color:-moz-use-text-color;
+    outline-style:none;
+    outline-width:medium;*/
+    padding:2px;
+    width:71%;
+}
+</style>
+<div id="main" class="main">
+  <div class="map_container">
+    <div id="container">
+    </div>
+  </div>
+  <div class='right_main'>
+    <div class="form-group-j">
+        <!-- <label class="col-sm-4-j control-label-j">图片：</label> -->
+        <label class="col-sm-9-j control-label-j">
+          <{if $ziti_image}>
+            <img src="<{$ziti_image}>" style="height: 300px;">
+          <{/if}>
+        </label>
+      </div>
+      <div class="form-group-j" style="padding-top: 30px;">
+        <label class="col-sm-4-j control-label-j">自提点名称：</label>
+        <label class="col-sm-5-j control-label-j"><{$name}></label>
+      </div>
+      <div class="form-group-j">
+        <label class="col-sm-4-j control-label-j">所在地区：</label>
+        <label class="col-sm-5-j control-label-j"><{$area}></label>
+      </div>
+      <div class="form-group-j">
+        <label class="col-sm-4-j control-label-j">详细地址：</label>
+        <label class="col-sm-5-j control-label-j"><{$addr}></label>
+      </div>
+      <div class="form-group-j">
+        <label class="col-sm-4-j control-label-j">联系方式：</label>
+        <label class="col-sm-5-j control-label-j"><{$tel}></label>
+      </div>
+      <div class="form-group-j">
+        <label class="col-sm-4-j control-label-j">自提点介绍：</label>
+        <textarea name="textarea" class="textarea" style="background-color:#FFFFFF;color:black;resize:none;"  disabled="disabled"><{$memo}></textarea>
+      </div>
+  </div>
+</div>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=XcNQnDv4UhAffDKc3DpbhjF9"></script>
+<script>
+  var map = new BMap.Map("container");          // 创建地图实例
+  var longitude = '<{$longitude}>';
+  var latitude = '<{$latitude}>';
+  var longitude = longitude?longitude:'119.975'
+  var latitude = latitude?latitude:'31.687'
+  var point = new BMap.Point(longitude, latitude);  // 创建点坐标
+  map.centerAndZoom(point, 15);                 // 初始化地图，设置中心点坐标和地图级别
+  map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+  var markerTmp = new BMap.Marker(point);        // 创建标注
+  map.addOverlay(markerTmp);                     // 将标注添加到地图中
+  map.addEventListener("click", function(e){
+    //根据坐标获取地址并填充的功能暂不支持，todo...
+    document.getElementById('longitude').value = e.point.lng;
+    document.getElementById('latitude').value = e.point.lat;
+    map.removeOverlay(markerTmp);
+    var point = new BMap.Point(e.point.lng, e.point.lat);
+    var marker = new BMap.Marker(point);        // 创建标注
+    markerTmp = marker;
+    map.addOverlay(marker);                     // 将标注添加到地图中
+  });
+
+</script>

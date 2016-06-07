@@ -1,0 +1,8 @@
+<services>
+    <service id="desktop_finder.sysitem_mdl_item_status">
+        <class>sysitem_finder_itemstatus</class>
+    </service>
+    <service id="desktop_finder.sysitem_mdl_item">
+        <class>sysitem_finder_items</class>
+    </service>
+</services>

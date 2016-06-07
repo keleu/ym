@@ -1,0 +1,79 @@
+<div class="signin">
+  <header>
+    <div class="list-hd">
+      <div class="backto icon-back ">
+        <input type="button" name="returnBcak" onclick="history.back()">
+      </div>
+      <{if $wechat.state_wx!=''}>
+      <div class="tit">微信绑定</div>
+      <{else}>
+      <div class="tit">用户登录</div>
+      <div class="clicks">
+        <a href="<{url action=topm_ctl_passport@signup}>">注册</a>
+      </div>
+      <{/if}>
+    </div>
+  </header>
+
+  <!-- main container -->
+  <div class="main">
+    <div class="form-in">
+      <form action="<{url action=topm_ctl_passport@login}>
+        " method="post" id="form_signin" class="form-vertical">
+        <input type="hidden" name="next_page" value="<{$next_page}>
+        ">
+        <input type="hidden" name="key" value="topm_signin">
+        <ul>
+          <li class="form-row">
+            <label class="form-label">账号:</label>
+            <input type="text" class="input-block action-account-check" name="account" id="" value="<{$uname}>" placeholder="用户名/邮箱地址/已验证手机号" required data-caution="请填写登录帐号" autofocus> <i class="icon-user input-figure"></i>
+          </li>
+          <li class="form-row">
+            <label class="form-label">密码:</label>
+            <input type="password" class="input-block" name="password" id="" placeholder="填写密码" required data-caution="请填写密码">
+              <!-- <i class="icon-lock input-figure"></i> -->
+          </li>
+          <li class="form-row">
+            <{if $isShowVcode}>
+            <label class="form-label">验证码:</label>
+            <input type="text" class="verify-input input-st" name="verifycode" id="iptlogin" required size="4" maxlength="4" data-caution="请填写验证码" placeholder="点击验证码可刷新">
+            <img align="absmiddle" class="auto-change-verify-handle"  src="<{url action=toputil_ctl_vcode@gen_vcode key=topm_signin width=120 height=35}>" alt="" width="100" height="30">
+            <{/if}>
+          </li>
+          <li class="form-row  auto-in">
+            <{if $wechat.nickname_wx!='' && $wechat.state_wx!=''}>
+            <a class="link-color" href="#">
+              该微信已绑定帐号，不需要重复绑定
+            </a>
+            <{elseif $wechat.state_wx==''}>
+            <a class="link-color" href="<{url action=topm_ctl_passport@findPwd}>">忘记密码？</a>
+            <{/if}>
+            
+          </li>
+          <li class="form-row in">
+            <!-- <label class="form-label">&nbsp;</label> -->
+            <button type="submit" class="ui-btn-warning action-signin-submit">提交</button>
+            <input type="hidden" name="state_wx" value="<{$wechat.state_wx}>">
+          </li>
+        </ul>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
+  WeixinJSBridge.call('hideOptionMenu');
+});
+
+$('.action-signin-submit').data('ajaxCallback', function(rs) {
+    var isShowVcode = "<{$isShowVcode}>"
+    if(rs.error && isShowVcode) {
+        changeCode($('.auto-change-verify-handle'));
+    }
+    if(rs.redirect) {
+      location.href = rs.redirect;
+    }
+});
+</script>
+

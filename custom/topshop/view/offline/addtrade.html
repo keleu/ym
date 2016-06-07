@@ -1,0 +1,474 @@
+<div><span>手动输入条码：</span>
+<input id="sku_bn" type="text" value="" onkeydown="if(event.keyCode==13) getGoods();" style="text-align:left;width:130px"><input type = "button" onclick="getGoods()" class="btn btn-default" value="确定(Enter)" style="padding:3px 6px 2px;background-color:#F3F3F3;"/>
+</div>
+<form id="itemForm" action="<{url action=topshop_ctl_trade_offline@doPayment}>" method="post" role="form" onkeydown="if(event.keyCode==13)return false;" data-validate-onsuccess="ajaxSubmit">
+<div class="selected-items item-filter-table filter-result">
+          <!-- <div class="item-filter-hd">
+            <div class="item-name" style="width:30%">商品名称</div>
+            <div class="item-price" style="width:17.5%">单价</div>
+            <div class="item-price" style="width:17.5%">数量</div>
+            <div class="item-price" style="width:17.5%">小计</div>
+            <div class="item-price" style="width:17.5%">操作</div>
+          </div> -->
+
+          <div class="selected-items item-filter-bd" id="op_items_list" style="width:65%;float:left">
+            <table class="table table-primary table-hover table-goods">
+              <thead>
+                <tr>
+                <td class="col-checkbox"></td>
+                  <td class="col-name">商品名称</td>
+                  <td>单价</td>
+                  <td>数量</td>
+                  <td>小计</td>
+                  <td class="text-center">操作</td>
+                </tr>
+              </thead>
+                  <tbody id="data_node">
+                  </tbody>
+            </table>
+        </div>
+        <div class="pay-info">
+          <div class="user-info" style="height:35%">
+            <div class="item-filter-hd" style="height:34px;border-bottom: 1px solid #ddd;">
+              <div class="col-member" style="text-align:center">会员信息</div>
+            </div>
+            <div class="col-member-info">
+              <input id="user_id" name="user_id" type="hidden" value=""/>
+              <input id="user_vcode" name="user_vcode" type="hidden" value=""/>
+              <input id="user_point" name="user_point" type="hidden" value=""/>
+              用户名：<span id="user_name"></span><br><br>
+              积分余额：<span class="text-total" id="point_account" style="font-weight:bolder;"></span>
+            </div>
+          </div>
+          <div class="payment-info" style="height:65%">
+            <div class="item-filter-hd" style="height:34px;border-bottom: 1px solid #ddd;">
+              <div class="col-payment" style="text-align:center">结算信息</div>
+            </div>
+            <div class="total-all">
+              已选商品：<span id="amount-total" class="text-total">0</span>件<br>
+              应收积分：<span id="integral-total" class="text-total">0</span>积分<br>
+              应收金额：<span id="money-total" class="text-total">0</span>元<br>
+              实收金额：<input type="text" id="payed_money" oninput="getExchange()" value="" style="width:20%;">元<br>
+              现金找零：<span id="exchange_money" class="text-total">0</span>元
+            </div><br><br>
+            <div class="go-pay">
+              <button type="submit" class="button-blue">结 算</button>
+            </div>
+          </div>
+        </div>
+
+</div>
+</form>
+<style>
+.pay-info{
+  width:35%;
+  float:right;
+  background:#fff;
+  border-left: 1px solid #ddd;
+}
+.user-info{
+  border-bottom: 1px solid #ddd;
+}
+td{
+  text-align: center;
+}
+td > input{
+  text-align: center;
+}
+span{
+  font-weight: 400;
+}
+.offline-amount{
+  width: 35px;
+}
+.offline-total{
+  width: 70px;
+}
+.total-all{
+  text-align: left;
+  margin-top: 1em;
+  margin-left: 2em;
+  display: block;
+  font-size: 30px;
+}
+.text-total{
+  color:#e22335;
+}
+.go-pay{
+  width: auto;
+  position: relative;
+  right: 3%;
+  text-align: right;
+}
+.button-blue{
+  border: 1px solid #1e7db9;
+  box-shadow: 0 1px 2px #8fcaee inset,0 -1px 0 #497897 inset,0 -2px 3px #8fcaee inset;
+  font-size: 20px;
+  width: 200px;
+  line-height: 50px;
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 1px #333;
+  border-radius: 5px;
+  margin: 0 20px 20px 0;
+  position: relative;
+  overflow: hidden;
+  background: -webkit-linear-gradient(top,#42a4e0,#2e88c0);
+  background: -moz-linear-gradient(top,#42a4e0,#2e88c0);
+  background: linear-gradient(top,#42a4e0,#2e88c0);
+}
+.col-member-info{
+  margin-top: 2em;
+  text-align: center;
+  font-size: 20px;
+}
+</style>
+<script>
+  $('.button-blue').attr({"disabled":"disabled"});
+  $('#sku_bn').focus();
+  var winh = $(window).height();
+  var bodyh = $('body').height();
+  $(".selected-items").height(winh*0.75);
+  $(".pay-info").height(winh*0.75);
+
+  function keyDown(e) {
+      var keycode = e.which;
+      if(keycode == '17'){
+        $('#sku_bn').focus();
+      }
+  }
+  document.onkeydown = keyDown;
+
+  //根据条码（二维码）获取商品（会员）信息，by liuxin
+  function getGoods(){
+    var sku_bn = $("#sku_bn").val();
+    if(sku_bn.indexOf("http:") >= 0){
+      checkVcode(sku_bn);
+    }
+    else{
+      $.ajax({
+        type: 'post',
+        url: "<{url action=topshop_ctl_trade_offline@getItems}>",
+        data: {bn:sku_bn},
+        dataType: 'html',
+        async: false,
+        success: function(ds){
+          if(ds == 'error:000'){
+            alert("商品编号错误，请重新输入！");
+            return;
+          }
+          if(ds == 'error:001'){
+            alert("该商品未上架！");
+            return;
+          }
+          if(ds != 'fail'){
+            var trId = ds.substring(18,ds.indexOf('"',8)-1);
+            var trNode = document.getElementById("item_info["+trId+"]");
+            var integral=0;
+            var money=0;
+            //判断是否已经有该商品：有则添加数量和金额  没有则插入数据
+            if(trNode){
+              var itemNum = trNode.childNodes[7].childNodes[4];
+              var oldNum = trNode.childNodes[7].childNodes[7];
+              //获取单价
+              var arr=priceChai($("[name='item_price["+trId+"]']").val());
+              integral=parseInt(arr[0]);
+              money=parseFloat(arr[1]);
+              //数量和金额增加
+              itemNum.value ++;
+              var integral_sum=itemNum.value*parseInt(integral);
+              var money_sum=itemNum.value*parseFloat(money);
+              oldNum.value = itemNum.value;
+              //小计数据
+              sumTotal(integral_sum,money_sum,trId);
+            }
+            else{
+              $("#data_node").append(ds);
+              total = $("#data_node").children(":last").children(":last").prev().children(":first").val();
+              //获取单价
+              var arr=priceChai($("[name='item_price["+trId+"]']").val());
+              integral=parseInt(arr[0]);
+              money=parseFloat(arr[1]);
+            }
+
+            $("#amount-total").html(Number($("#amount-total").html())+1);
+            $("#integral-total").html(Number($("#integral-total").html())+parseInt(integral));
+            $("#money-total").html((Number($("#money-total").html())+parseFloat(money)).toFixed(3));
+            $("#sku_bn").val('');
+          }
+          else{
+            alert("商品编号错误，请重新输入！");
+          }
+        },
+      });
+    }
+    if($("#user_id").val()&&$("#amount-total").html()!='0'&&$("#point_account").html() == "足够"){
+        if(parseFloat($("#money-total").html()) == 0 || parseFloat($("#money-total").html())>0&&parseFloat($("#payed_money").val())>0){
+          $('.button-blue').removeAttr("disabled");
+        }
+    }
+    $("#sku_bn").val('');
+  }
+
+  //减少商品数量
+  function decreaseAmount(btnde){
+    var skuId = btnde.parentNode.firstChild.nextElementSibling.value;
+    var a = document.getElementById("item_amount["+skuId+"]");
+    var o = document.getElementById("old_amount["+skuId+"]");
+    //获取单价
+    var arr=priceChai($("[name='item_price["+skuId+"]']").val());
+    var integral=parseInt(arr[0]);
+    var money=parseFloat(arr[1]);
+    if(a.value == 1){
+      a.value = 1;
+    }
+    else{
+      a.value--;
+      o.value = a.value;
+      var integral_sum=parseInt(a.value) * integral;
+      var money_sum=parseInt(a.value) * money;
+      $("#amount-total").html(Number($("#amount-total").html())-1);
+      $("#integral-total").html(parseInt($("#integral-total").html())-integral);
+      $("#money-total").html((Number($("#money-total").html())-money).toFixed(3));
+
+      //小计数据
+      sumTotal(integral_sum,money_sum,skuId);
+    }
+  }
+
+  //增加商品数量
+  function increaseAmount(btnie){
+    var skuId = btnie.parentNode.firstChild.nextElementSibling.value;
+    var a = document.getElementById("item_amount["+skuId+"]");
+    var o = document.getElementById("old_amount["+skuId+"]");
+    //获取单价
+    var arr=priceChai($("[name='item_price["+skuId+"]']").val());
+    var integral=parseInt(arr[0]);
+    var money=parseFloat(arr[1]);
+    
+    a.value++;
+    o.value = a.value;
+    var integral_sum=parseInt(a.value) * integral;
+    var money_sum=parseFloat(a.value) * money;
+    $("#amount-total").html(Number($("#amount-total").html())+1);
+    $("#integral-total").html(parseInt($("#integral-total").html())+integral);
+    $("#money-total").html((parseFloat($("#money-total").html())+money).toFixed(3));
+
+    //小计数据
+    sumTotal(integral_sum,money_sum,skuId);
+  }
+
+  //改变单价
+  function increasePrice(o){
+    var name=o.parentNode.firstChild.nextElementSibling.name;
+    var sku=name.split('[');
+    var skuId=parseInt(sku[1]);
+    var item_amount=parseInt($("[name='item_amount["+skuId+"]']").val());
+    //获取单价
+    var price = o.parentNode.firstChild.nextElementSibling.value;
+    var arr=priceChai(price);
+    var integral=parseInt(arr[0]);
+    var money=parseFloat(arr[1]);
+
+    //获取原来的小计
+    var yuanIntegral=parseInt($("[name='item_integral["+skuId+"]']").html());
+    var yuanMoney=parseFloat($("[name='item_money["+skuId+"]']").html());
+
+    //显示现在的小计
+    var integral_sum=item_amount*integral;
+    var money_sum=item_amount*money;
+
+    //应收=原来的应收-原来的小计+现在的小计
+    var integral_total=parseInt($('#integral-total').html());
+    integral_total=integral_total-yuanIntegral+integral_sum;
+    var money_total=parseFloat($('#money-total').html());
+    money_total=money_total-yuanMoney+money_sum;
+
+    $('#integral-total').html(integral_total);
+    $('#money-total').html(money_total.toFixed(3));
+    //小计数据
+    sumTotal(integral_sum,money_sum,skuId);
+  }
+
+  //拆分单价
+  function priceChai(price){
+    var arr=price.split(',');
+    var money=[];
+    switch(arr[1]){
+      case '0':
+        money[0]=arr[0];
+        money[1]='0';
+        break;
+      case '1': 
+        var tmp=arr[0].split('+');
+        money[0]=parseInt(tmp[0]);
+        money[1]=parseFloat(tmp[1]);
+        break;
+      case '2':
+        money[0]='0';
+        money[1]=arr[0];
+        break;
+    }
+    return money;
+  }
+
+  //手动修改商品数量
+  function changeAmount(iptnum){
+    var name=iptnum.parentNode.firstChild.nextElementSibling.name;
+    var sku=name.split('[');
+    var skuId=parseInt(sku[1]);
+    var item_amount=parseInt($("[name='item_amount["+skuId+"]']").val());
+    
+    if(item_amount==0){
+      item_amount=1;
+      $("[name='item_amount["+skuId+"]']").val(1);
+    }
+    //获取单价
+    var price = $("[name='item_price["+skuId+"]']").val();
+    var arr=priceChai(price);
+    var integral=parseInt(arr[0]);
+    var money=parseFloat(arr[1]);
+
+    //获取原来的小计=原来的数量*单价
+    var old_amount=parseInt($("[name='old_amount["+skuId+"]']").val());
+    yuanIntegral=old_amount*integral;
+    yuanMoney=old_amount*money;
+
+    //显示现在的小计
+    var integral_sum=item_amount*integral;
+    var money_sum=item_amount*money;
+
+    //应收=原来的应收-原来的小计+现在的小计
+    var integral_total=parseInt($('#integral-total').html());
+    integral_total=integral_total-yuanIntegral+integral_sum;
+    var money_total=parseFloat($('#money-total').html());
+    money_total=money_total-yuanMoney+money_sum;
+
+    //已选件数=原来的件数-原来的数量+现在的数量
+    var amount_total=parseInt($('#amount-total').html());
+    amount_total=amount_total-old_amount+item_amount;
+
+    $('#integral-total').html(integral_total);
+    $('#money-total').html(money_total.toFixed(3));
+    $('#amount-total').html(amount_total);
+    $("[name='old_amount["+skuId+"]']").val(item_amount);
+    //小计数据
+    sumTotal(integral_sum,money_sum,skuId);
+  }
+
+  //显示小计数据
+  function sumTotal(integral,money,skuId){
+    $("[name='total_integral["+skuId+"]']").val(integral);
+    $("[name='total_fee["+skuId+"]']").val(money.toFixed(3));
+
+    $("[name='item_integral["+skuId+"]']").html(integral);
+    $("[name='item_money["+skuId+"]']").html(money.toFixed(3));
+  }
+
+  //移除商品
+  function removeItem(btnrmv){
+    var name=$(btnrmv).attr("name");
+    var sku=name.split('[');
+    var skuId=parseInt(sku[1]);
+    //获取原来的小计
+    var yuanIntegral=parseInt($("[name='item_integral["+skuId+"]']").html());
+    var yuanMoney=parseFloat($("[name='item_money["+skuId+"]']").html());
+    
+    //应收=原来的应收-原来的小计
+    var integral_total=parseInt($('#integral-total').html());
+    integral_total=integral_total-yuanIntegral;
+    var money_total=parseFloat($('#money-total').html());
+    money_total=money_total-yuanMoney;
+
+    var deltr = btnrmv.parentNode.parentNode;
+    var itemNum = deltr.childNodes[7].childNodes[4].value;
+    var t = deltr.childNodes[9].childNodes[0].value;
+    deltr.parentNode.removeChild(deltr);
+    $("#amount-total").html(Number($("#amount-total").html())-Number(itemNum));
+    $('#integral-total').html(integral_total);
+    $('#money-total').html(money_total.toFixed(3));
+    if($("#amount-total").html() == 0){
+      $('.button-blue').attr({"disabled":"disabled"});
+    }
+    $('#sku_bn').focus();
+  }
+
+  //校验会员支付码信息
+  function checkVcode(url){
+    $.ajax({
+      type: 'get',
+      url: url+'&point='+$("#integral-total").html(),
+      dataType: 'json',
+      async: false,
+      success:function(rs){
+        if(rs.success){
+          $('#user_id').val(rs.userId);
+          $('#user_name').html(rs.login_account);
+          $('#point_account').html(rs.point_account);
+          $('#user_vcode').val(rs.vcode);
+          $('#user_point').val(rs.point);
+        }
+        else{
+          alert(rs.msg);
+        }
+      }
+    })
+  }
+
+  //计算找零
+  function getExchange(){
+    if($("#money-total").html() == 0||isNaN(Number($("#payed_money").val()))){
+      $("#payed_money").val("");
+    }
+    else{
+      $("#exchange_money").html(($("#payed_money").val() - Number($("#money-total").html())).toFixed(3));
+      if($("#user_id").val()&&$("#amount-total").html()!='0'&&$("#point_account").html() == "足够"){
+        $('.button-blue').removeAttr("disabled");
+      }
+    }
+  }
+
+  $("#payed_money").blur(function(){
+    if(Number($("#exchange_money").html()) < 0){
+      $("#exchange_money").html('0');
+      $("#payed_money").val("");
+      $('.button-blue').attr({"disabled":"disabled"});
+    }
+    else if($("#money-total").html() == '0'&&$("#user_id").val()&&$("#amount-total").html()&&$("#point_account").html() == "足够"){
+      $('.button-blue').removeAttr("disabled");
+    }
+  })
+
+  $("#integral-total").bind('DOMNodeInserted', function (e) {
+　　if(Number($(e.target).html()) > Number($("#user_point").val())&&$("#user_id").val()){
+      $("#point_account").html("不足");
+      $('.button-blue').attr({"disabled":"disabled"});
+    }
+    else if(Number($(e.target).html()) < Number($("#user_point").val())&&$("#user_id").val()){
+      $("#point_account").html("足够");
+      if($("#money-total").html() == '0'&&$("#amount-total").html()){
+        $('.button-blue').removeAttr("disabled");
+      }
+    }
+  });
+
+function ajaxSubmit (e) {
+  var form = e.target;
+  e.preventDefault();
+  $.post(form.action, $(form).serialize(), function(rs) {
+      // rs = JSON.parse(rs);
+      $(form).find('button[type=submit]').prop('disabled', false);
+      if(rs.error) {
+          $('#messagebox').message(rs.message, 'error');
+          return;
+      }
+      else if(rs.success) {
+          $('#messagebox').message(rs.message, 'success');
+      }
+      if(rs.redirect) {
+          location.href = rs.redirect;
+      }
+  });
+}
+</script>

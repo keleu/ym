@@ -1,0 +1,359 @@
+<div class="order-status shop">
+  <{include file="topm/common/top.html"}>
+  <div class="main aftersale">
+    <div class="status-list">
+      <ul>
+        <li>
+          <{if $info.aftersales_type == 'ONLY_REFUND'}>
+          <i class="icon icon-refund"></i>
+          <span>仅退款</span>
+          <{elseif $info.aftersales_type == 'REFUND_GOODS'}>
+          <i class="icon icon-found"></i>
+          <span>退货退款</span>
+          <{elseif $info.aftersales_type == 'EXCHANGING_GOODS'}>
+          <i class="icon icon-return"></i>
+          <span>申请换货</span>
+          <{/if}>
+        </li>
+        <li>
+          售后状态：
+          <span>
+            <{if $info.status == '0'}>
+            等待商家处理
+            <{elseif $info.status == '1'}>
+            售后处理中
+            <{elseif $info.status == '2'}>
+            售后成功
+            <{elseif $info.status == '3'}>
+            售后驳回
+            <{/if}>
+          </span>
+        </li>
+        <li>
+          申请时间：<span><{$info.created_time|cdate:'FDATE_FTIME'}></span>
+        </li>
+        <li>
+          售后编号：<span><{$info.aftersales_bn}></span>
+        </li>
+        <li>
+          申请理由：<span><{$info.reason}></span>
+        </li>
+        <li>
+          详细描述：<span class="txt"><{$info.description|default:"无详细描述"}></span>
+        </li>
+        <{if $info.evidence_pic}>
+        <li clas="regoods">
+          <span class="txt">
+            <{foreach from=$info.evidence_pic item=pic}>
+            <img width="64" height="64" src="<{$pic|storager:t}>">
+            <{/foreach}>
+          </span>
+        </li>
+        <{/if}>
+        <{if $info.shop_explanation || $info.admin_explanation }>
+        <{if $info.admin_explanation}>
+        <li>
+          平台处理说明
+          <span class="txt"><{$info.admin_explanation}><span>
+            </li>
+            <{/if}>
+            <{if $info.shop_explanation}>
+            <li>
+              商家处理说明
+              <span class="txt"><{$info.shop_explanation}></span>
+            </li>
+            <{/if}>
+            <{/if}>
+          </ul>
+        </div>
+
+        <{if $info.aftersales_type != 'ONLY_REFUND' && $info.progress >= '2' }>
+          <{if $info.ziti_addr}>
+            <div class="logistics">
+            <div class="waybill-info">
+              <div class="info-txt">
+                <span>退回自提点信息</span>
+                <div style="line-height: 30px;">
+                  地址：<{$info.ziti_addr}><button type="button" class="ui-btn-warning" onclick="mapto(<{$info.ziti_id}>)">地图</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <{elseif $info.sendback_data}>
+          <div class="logistics">
+            <div class="waybill-info">
+              <i class="icon icon-flow"></i>
+              <div class="info-txt">
+                <span>寄送的物流信息</span>
+                <div>
+                  物流公司：<{$info.sendback_data.logi_name}><br>
+                  运单号码：<{$info.sendback_data.logi_no}>
+                  <span id="click_get_track_back" class="sp-see">查看物流跟踪</span>
+                </div>
+              </div>
+            </div>
+            <div id="send_back_track"> </div>
+          </div>
+          <{/if}>
+        <{/if}>
+
+        <{if $info.aftersales_type == 'EXCHANGING_GOODS'}>
+          <{if $info.ziti_memo}>
+            <div class="logistics">
+              <div class="waybill-info">
+                <div class="info-txt">
+                  <span>商家寄送自提点信息</span>
+                  <div>
+                    自提提示：<{$info.ziti_memo}>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <{elseif $info.sendconfirm_data}>
+            <div class="logistics">
+              <div class="waybill-info">
+                <i class="icon icon-flow"></i>
+                <div class="info-txt">
+                  <span>商家寄送物流信息</span>
+                  <{if $info.sendconfirm_data}>
+                  <div>
+                    物流公司：<{$info.sendconfirm_data.logi_name}><br>
+                    运单号码：<{$info.sendconfirm_data.logi_no}><br>
+                    <span id="click_get_track" class="sp-see">查看物流跟踪</span>
+                  </div>
+                  <{/if}>
+                </div>
+              </div>
+              <div id="send_track"> </div>
+            </div>
+          <{/if}>
+        <{/if}>
+      </div>
+    </div>
+
+    <!--如果是退货退款，商家同意则填写回寄商品-->
+    <{if $info.progress == '1'}>
+    <div class="send-back-info">
+      <div class="send-info-fangshi">请选择回寄方式：</div>
+      <div class="send-info-wuliu">
+        <input type="radio" name="jihui" checked="checked" value='wuliu'/>&nbsp;物流方式
+      </div>
+      <div class="send-info-ziti">
+        <input type="radio" name="jihui" value="ziti"/>&nbsp;自提方式
+      </div>
+    </div>
+    <div class="send-back-info" style="clear:both;">
+      <div class="form-title">请填写回寄物流信息</div>
+      <div id="typeBack"><{include file="topm/member/aftersales/sendback.html"}></div>
+    </div>
+    <{/if}>
+
+    <{if $info.sku.complaints_status == 'NOT_COMPLAINTS' && $info.sku.aftersales_status == 'SELLER_REFUSE_BUYER'}>
+    <div class="buy-action btn-center-box">
+      <a href="<{url action=topm_ctl_member_complaints@complaintsView oid=$info.sku.oid}>" class="ui-btn-warning ui-btn-outlined">投诉商家</a>
+    </div>
+    <{/if}>
+  </div>
+
+  <!--返回顶部-->
+  <div id="gotop"></div>
+
+  <!-- 地图使用 -->
+<div class="buy-panel BMap_div" id="BMap_div">
+  <div class="map_close"><i class="icon-close close_map"></i></div>
+  <div id='eqinfo_BMap'>
+    <div class='bmap_div' id="bmap_div"></div>
+  </div>
+  <div class="map_content">
+    <div class="map_title"></div>
+    <div class="map_addr"></div>
+    <div class="map_memo"></div>
+    <div class="map_img"></div>
+
+  </div>
+</div>
+<style type="text/css">
+.send-info-fangshi{
+  float: left;width: 40%;margin-bottom: 10px;
+}
+.send-info-wuliu{
+  float: left;width: 30%;
+}
+.send-info-wuliu input,.send-info-ziti input{
+  top:0px;
+}
+.send-info-ziti{
+  float: left;width: 30%;
+}
+.BMap_div{
+  background:#fff !important;
+  overflow-y:scroll;
+  overflow-x:hidden;
+  z-index: 99998;
+}
+#eqinfo_BMap{
+  top: 0px;
+  position:relative;
+  margin:0 auto;
+  z-index:9999;
+  background-color:#fff !important;
+  background:#fff !important;
+  width:100%;
+  height:400px;
+  min-width:200px;
+}
+.BMap_div .map_close{
+  position: fixed;
+  float: right;
+  right: 0px;
+  top: 0px;
+  color: #fff;
+  background: rgba(0, 0, 0, .6);
+  width: 3em;
+  height: 3em;
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 50%;
+  z-index: 99999;
+}
+.map_content,.map_title,.map_addr,.map_memo,.map_img{
+  width: 100%;
+  line-height: 200%;
+}
+.BMap_div .map_close:hover{
+  color: #efefef;
+}
+#bmap_div{
+  width: 100%;
+  height:100%;
+}
+#bmap_div img{max-width: none!important  }
+  </style>
+  <!-- 百度地图js -->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=XcNQnDv4UhAffDKc3DpbhjF9"></script>
+  <script>
+    document.addEventListener('WeixinJSBridgeReady', function onBridgeReady(){
+      var mytopbar = document.getElementById("topFix");
+      var myfixhd = document.getElementById("fixhd");
+      WeixinJSBridge.call('hideToolbar');
+      mytopbar.style.display="none";
+      myfixhd.style.margin="0";
+    });
+
+    var flag = false;
+    $('.logistics li:first-child').tap(function(){
+      $(this).siblings('li').toggle();
+      if(flag==false){
+        $(this).parent().parent().find('.icon-down').addClass('list-open');
+        flag = true;
+      }else{
+        $(this).parent().parent().find('.icon-down').removeClass('list-open');
+        flag = false;
+      }
+      console.log(flag);
+    })
+
+    $('#click_get_track_back').click(function(e){
+      $('#send_back_track').html("加载中...");
+      $.post('<{url action=topm_ctl_member_aftersales@ajaxGetTrack}>',{'logi_no':'<{$info.sendback_data.logi_no}>','corp_code':'<{$info.sendback_data.corp_code}>'},function(rs){
+        if(rs.error){
+          return alert(rs.message);
+        }
+        $('#send_back_track').html(rs);
+      });
+    });
+    $('#click_get_track').click(function(e){
+      $('#send_track').html("加载中...");
+      $.post('<{url action=topm_ctl_member_aftersales@ajaxGetTrack}>',{'logi_no':'<{$info.sendconfirm_data.logi_no}>','corp_code':'<{$info.sendconfirm_data.corp_code}>'},function(rs){
+        if(rs.error){
+          return alert(rs.message);
+        }
+        $('#send_track').html(rs);
+      });
+    });
+
+
+    /**
+    * ps ：获取回寄内容
+    * Time：2016/05/09 20:25:35
+    * @author jianghui
+    */
+  $('[name="jihui"]').click(function(){
+    var jihui=$(this).val();
+    $.ajax({
+        url: '<{url action=topm_ctl_member_aftersales@ajaxGetBack}>',
+        type: 'post',
+        datatype: 'html',
+        data: {
+            jihui:jihui,
+            shop_id:'<{$info.trade.shop_id}>',
+            id:'<{$info.aftersales_bn}>',
+            area:'<{$info.trade.buyer_area}>',
+            aftersales_type:'<{$info.aftersales_type}>'
+          },
+        success: function(res) {
+          if(jihui=='wuliu'){
+            $('.form-title').html('请填写回寄物流信息');
+          }else{
+            $('.form-title').html('请选择自提点');
+          }
+          $('#typeBack').html(res);
+        }
+    });
+  });
+    //查看地图的脚本
+  function mapto(zitiId){
+    if(!zitiId > 0){
+      return;
+    }
+
+    //设置地图需要展示的高度
+    var clientHeight = document.getElementById('BMap_div').offsetHeight;
+    // alert(clientHeight);
+    $('#eqinfo_BMap').css({'height':(clientHeight-50)+'px'});
+
+    //打开地图的层展示
+    $('.BMap_div').addClass('visible');
+
+    //获取关于地图和自提点的信息
+    //获取对应的自提点信息，查看地图
+    var url = "<{url action=topm_ctl_cart@consultMap}>";
+    // debugger;
+    $.getJSON(url,{'ziti_id':zitiId},function(data){
+      if(!data.area_id){
+        $('.bmap_div').html('该自提点可能已经取消，不支持查看！');
+      }else{
+        //设置其他信息
+        if(data.ziti_image){
+          $('.map_img').html('<img src="'+data.ziti_image+'" class="map_image" width="100%">');
+        }
+        $('.map_title').html('自提点：'+data.name+'('+data.tel+')');
+        $('.map_addr').html('地址：'+data.area+data.addr);
+        $('.map_memo').html('介绍：'+data.memo);
+        //开始设置地图
+        var map = new BMap.Map("bmap_div");               // 创建地图实例
+        var longitude = data.longitude;
+        var latitude = data.latitude;
+
+        longitude = longitude?longitude:'119.975'
+        latitude = latitude?latitude:'31.687'
+
+        var point = new BMap.Point(longitude, latitude);  // 创建点坐标
+        map.centerAndZoom(point, 15);                     // 初始化地图，设置中心点坐标和地图级别
+        map.enableScrollWheelZoom();                      //启用地图滚轮放大缩小
+        var markerTmp = new BMap.Marker(point);           // 创建标注
+        map.addOverlay(markerTmp);                        // 将标注添加到地图中
+      }
+    });
+  }
+  //关闭按钮后清空地图信息
+  $('.close_map').click(function(){
+    //关闭地图的层展示
+    $('.BMap_div').removeClass('visible');
+    $('#bmap_div').html('');
+    $('.map_img').html('');
+    $('.map_title').html('');
+    $('.map_addr').html('');
+    $('.map_memo').html('');
+  });
+  </script>

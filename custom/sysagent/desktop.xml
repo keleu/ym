@@ -1,0 +1,31 @@
+<desktop>
+    <permissions>
+        <!--代理商-->
+        <permission id="admin_report" display='true' parent='0' workground='sysagent.wrokground.agent'>代理商发展报表</permission>
+        <permission id="expand_sms" display='true' parent='0' workground='sysagent.wrokground.agent'>发展一级代理商</permission>
+        <permission id="agent" display='true' parent='0' workground='sysagent.wrokground.agent'>查看代理商列表</permission>
+        <permission id="admin_apply" display='true' parent='0' workground='sysagent.wrokground.agent'>停用代理商审核</permission>
+        <permission id="settlement_agent" display='true' parent='0' workground='sysagent.wrokground.agent'>代理商结算</permission>
+        <permission id="disask" display='true' parent='0' workground='sysagent.wrokground.agent'>代理商配置</permission>
+    </permissions>
+
+    <workground name="代理商管理" id="sysagent.wrokground.agent" app="sysagent" controller="admin_agent" action="index" order='30'>
+        <menugroup name="代理商">
+            <menu controller='admin_agent' action='expand_sms' permission='expand_sms' display='true' order='20'>发展一级代理商</menu>
+            <menu controller='admin_agent' action='index' permission='agent' display='true' order='20'>代理商列表</menu>
+            <menu controller='admin_apply' action='index' permission='admin_apply' display='true' order='20'>停用代理商审核</menu>
+            <menu controller='admin_report' action='index' permission='admin_report' display='true' order='20'>代理商发展报表</menu>
+        </menugroup>
+        <menugroup name="代理商结算">
+            <menu controller='admin_settlement' action='detail' permission='settlement_agent' display='true' order='20'>代理商结算明细</menu>
+            <menu controller='admin_settlement' action='index' permission='settlement_agent' display='true' order='20'>代理商结算汇总</menu>
+        </menugroup>
+        <menugroup name="代理商配置">
+            <menu controller='agent_disask' action='license' permission='disask' display='true' order='20'>代理商协议配置</menu>
+            <menu controller='agent_disask' action='base_setting' permission='disask' display='true' order='20'>基本参数设置</menu>
+            <menu controller='agent_disask' action='authority' permission='disask' display='true' order='20'>移动端权限配置</menu>
+            <menu controller='agent_disask' action='pay_setting' permission='disask' display='true' order='20'>移动端支付方式配置</menu>
+        </menugroup>
+    </workground>
+
+</desktop>

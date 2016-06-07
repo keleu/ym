@@ -1,0 +1,390 @@
+<div class="action-bar">
+<{if $agent.status == '3'}>
+<div class="agent-ctls clearfix" agent_id="<{$agent.agent_id}>">
+ <{if $action_buttons && array_key_exists('restart',$action_buttons.re_sequence)}>
+    <!-- 代理商已停用 -->
+    <div class="flt agent-action">
+        <{if $action_buttons.re_sequence.restart.flow}><input type="hidden" name="flow"><{/if}>
+        <{if $action_buttons.re_sequence.restart.disable}><input type="hidden" name="disabled"><{/if}>
+        <{button type="button"
+            label=$action_buttons.re_sequence.restart.label
+            app=$action_buttons.re_sequence.restart.app
+            confirm=$action_buttons.re_sequence.restart.confirm
+            act=$action_buttons.re_sequence.restart.act
+        }>
+    </div>
+    <!-- 结束 -->
+ <{/if}>
+</div>
+<{else}>
+      <div class="agent-ctls clearfix" agent_id="<{$agent.agent_id}>">
+            <!-- 标准按钮 -->
+            <{if $action_buttons}>
+                <{foreach from=$action_buttons key=key item=item}>
+                    <div class="span-auto"><b><{t}>操作：<{/t}></b></div>
+                    <{foreach from=$item key=subkey item=subitem}>
+                        <div class="<{if $smarty.foreach.payments.last}>span-auto<{else}>flt<{/if}> agent-action">
+                            <{if $subitem.flow}><input type="hidden" name="flow"><{/if}>
+                            <{if $subitem.disable}><input type="hidden" name="disabled"><{/if}>
+                            <{button type="button"
+                               label=$subitem.label
+                               app=$subitem.app
+                               confirm=$subitem.confirm
+                               act=$subitem.act
+                            }>&nbsp;
+                        </div>
+                    <{/foreach}>
+                <{/foreach}>
+            <{/if}>
+            <!-- 结束 -->
+        </div>
+<{/if}>
+<script>
+$$('.agent-ctls button[act]').each(function(btn){
+
+       var flow = btn.getPrevious('input[name="flow"]'),
+        disabled = btn.getPrevious('input[name="disabled"]'),
+        cfm_str = btn.get('confirm'),
+        _dialog = null,
+        _app    = btn.get('app'),
+        act_url = "?app="+_app+"&ctl=admin_agent&act={action}&p[0]=<{$agent.agent_id}>";
+
+       if(disabled){
+           return btn.set({'opacity':.5,styles:{'cursor':'not-allowed'}});
+       }
+
+       btn.addEvent('click',function(){
+
+           if(cfm_str&&!confirm(cfm_str)){ return;  }
+           if(flow){
+
+             _dialog = new Dialog( act_url.substitute({'action':'go'+btn.get('act')}),
+            {title:btn.get('text')+":<{$agent.username}>",width:.5,height:.7,onLoad:function(){
+
+                      var _dialog_form = this.dialog;
+                      this.dialog.getElement('form').store('target',{
+                      onRequest:function(){
+                        _dialog_form.getElement('.table-action .agent-action').set('disabled','disabled');
+                      },
+                      onComplete:function(){
+
+                         <{if !$env.get.singlepage}>
+                                <{if $env.get.finder_id}>
+                                    finderGroup['<{$env.get.finder_id}>'].request({
+                                        method:'post',
+                                        onComplete:function(){
+                                           _dialog.close();
+                                           this.loadPacket();//refersh finder packet(tabs);
+                                        }});
+                                <{/if}>
+                          <{else}>
+                                _dialog.close();
+                                if (opener.finderGroup&&opener.finderGroup['<{$env.get.finder_id}>'])
+                                    opener.finderGroup['<{$env.get.finder_id}>'].refresh();
+                                 location.reload();
+                          <{/if}>
+                      }});
+
+
+             }});
+
+           }else{
+              W.page( act_url.substitute({'action':'do'+btn.get('act')}),{onComplete:function(re){
+                    try{re = JSON.decode(re)}catch(e){}
+                    if(re&&re.error){return;}
+                    <{if !$env.get.singlepage}>
+                       <{if $env.get.finder_id}>
+                            finderGroup['<{$env.get.finder_id}>'].refresh();
+                       <{/if}>
+                    <{else}>
+                        if (opener.finderGroup&&opener.finderGroup['<{$env.get.finder_id}>'])
+                            opener.finderGroup['<{$env.get.finder_id}>'].refresh();
+                        location.reload();
+                    <{/if}>
+
+                }});
+           }
+
+       });
+
+  });
+</script>
+</div>
+<form action="?<{$env.server.QUERY_STRING}>" method="post">
+<div class="tableform">
+    <div class="division"> 
+    <input id = "agent_id" name = "agent_id" type = "hidden" value = "<{$agent.agent_id}>">
+        <table width="100%" cellspacing="0" cellpadding="0">
+              <tr>
+                <th><label><{t}>用户名：<{/t}></label></th>
+                <td><{$agent.username|escape:'html'}></td>
+                <th><label><{t}>真实姓名：<{/t}></label></th>
+                <td><{input id='agent_name' type='text' name='agent_name' value=$agent.name}></td>
+                <th><label><{t}>性别：<{/t}></label></th>
+                <td><{if $agent.sex == 1}><select id = "agent_sex" name = "agent_sex"><option value = "1">男</option><option value = "0">女</option></select><{elseif $agent.sex == 0}><select id = "agent_sex" name = "agent_sex"><option id = "agent_sex" value = "0">女</option><option value = "1">男</option></select><{/if}></td>
+              </tr>
+              <tr>
+                <th><label><{t}>手机：<{/t}></label></th>
+                <td><{input id='agent_mobile' type='text' name='agent_mobile' value=$agent.mobile}></td>
+                <th><label>E-mail：</label></th>
+                <td><{input id='agent_email' type='text' name='agent_email' value=$agent.email}></td>
+                <th><label>证件号：</label></th>
+                <!-- <td><{$agent.id_card}><a id="show_image" href = javascript:showImage() style = "color:#1168EF;display:inline">查看图片</a></td> -->
+                <td><{$agent.id_card}></td>
+                <!-- <th><label><{t}>注册日期：<{/t}></label></th>
+                <td><{$agent.regtime|cdate:FDATE}></td>
+                <th><label><{t}>注册IP：<{/t}></label></th>
+                <td><{$agent.reg_ip}></td> -->
+              </tr>
+              <tr>
+                <th><label><{t}>代理商等级：<{/t}></label></th>
+                <td style="color:red;"><b><{$agent.level}></b>
+                  <input type="hidden" id="level" value="<{$agent.level}>"/>
+                </td>
+                <th><label><{t}>上级代理商：<{/t}></label></th>
+                <td><{input id='agent_parent_id' type='select' name='agent_parent_id' options=$agent.parents vtype="required" value=$agent.parents"}><input id='agent_parentId' type='hidden' name='agent_parentId' value="<{$agent.parent_id}>"></td>
+                <th><label><{t}>详细地址：<{/t}></label></th>
+                <td colspan = "2"><{input id='agent_addr' type='text' name='agent_addr' value=$agent.addr style='width:250px'}></td>
+              </tr>
+              <tr>
+                <!-- <th><label><{t}>出生日期：<{/t}></label></th>
+                <td><{$agent.birthday|date_format:'%Y-%m-%d'}></td> -->
+                <th><label><{t}>类型：<{/t}></label></th>
+                <td>
+                <{if $agent.kind == '1'}>个人<{else}>企业<{/if}>
+                <!-- <{if $agent.kind == '1'}><select id = "agent_kind" name = "agent_kind"><option value = "1">个人</option><option value = "2">企业</option></select><{elseif $agent.kind == '2'}><select id = "agent_kind" name = "agent_kind"><option id = "agent_kind" value = "2">企业</option><option value = "1">个人</option></select><{/if}></td>
+                <th><label><{t}>积分折扣率：<{/t}></label></th>
+                <td><{input id='discount' type='text' name='discount' vtype="required" value=$agent.discount}> --></td>
+                <th>积分折扣率:</th>
+                <td><{input id='agent_discount' type='text' name='agent_discount' value=$agent.discount }></td>
+              </tr>
+              <tr>
+                <th><label><{t}>地区：<{/t}></label></th>
+                <td colspan = "3"><label id = "static_area" style = "display:inline"><{$agent.area_first}><{$agent.area_second}><{$agent.area_third}></label><span id="first_area"><{input type="select" name="agent_first_area" style="display:none" vtype="required" options=$areaMap value=$areaMap.value onchange="getChildArea()"}>&nbsp&nbsp</span><span id="second_area"><{input type="select" name="agent_second_area" style="display:none" onchange="getThirdArea()"}>&nbsp&nbsp</span><span id="third_area"><{input type="select" name="agent_third_area" style="display:none"}></span><a id="agent_area_edit" href = javascript:showArea() style = "color:#1168EF;display:inline">修改地区</a><!-- <a id="agent_area_save" href = javascript:saveArea() style = "color:#1168EF;display:none">保存</a> --><span>&nbsp&nbsp</span><input type = "button" id = "agent_area_save" onclick="saveArea()" value = "确定" style = "display:none"/><span>&nbsp</span><input type = "button" id = "agent_area_return" onclick="returnParent()" value = "取消" style = "display:none"/></td>
+                
+              </tr>
+              <tr>
+                <th><label><{t}>证件照：<{/t}></label></th>
+                <td>
+                <{if $agent['pictures']}>
+                  <{foreach from=$agent['pictures'] item=item}>
+                    <{if $item}>
+                      <a href="<{$item}>" target="_blank"><img width="40" height="40" src="<{$item|storager:t}>"><i class="icon icon-search-a"></i></a>
+                    <{/if}>
+                <{/foreach}>
+                  <{/if}>
+                </td>
+              </tr>
+        </table>
+    </div>
+</div>
+<!-- <div class="table-action"><{button type="submit" label=$___sysagent="保存"|t:'sysagent' }></div> -->
+<div class="table-action"><button type="button" class="btn" id="btn"><span><span id='isSub' onclick="subSure()">保存</span></span></button></div>
+</form>
+<script>
+    var parent_id = document.getElementById("agent_parentId").value;
+    document.getElementById("agent_parent_id").value = parent_id;
+
+    /**
+     * ps ：编辑代理商地区
+     * Time：2015/11/26 14:33:25
+     * @author liuxin
+    */
+    function showArea(){
+        var parent = document.getElementById("agent_parent_id");
+        var firstarea = document.getElementById("first_area").firstChild;
+        var secondarea = document.getElementById("second_area").firstChild;
+        var thirdarea = document.getElementById("third_area").firstChild;
+        var agentId = document.getElementById("agent_id").value;
+        var edit = document.getElementById("agent_area_edit");
+        var save = document.getElementById("agent_area_save");
+        var parentId = parent.value;
+        // alert(parentId);
+        new Request({
+            method:'post',
+            url:'?app=sysagent&ctl=admin_agent&act=editArea',
+            data:{'agent_id':agentId,'parent_id':parentId},
+            onSuccess:function(rs){
+                document.getElementById("static_area").style.display = "none"; 
+                rs = JSON.decode(rs);
+                firstarea.style.display = "inline";
+                firstarea.options.length=0;
+                for(var k in rs.data.parent.area_first){
+                    firstarea.options.add(new Option(rs.data.parent.area_first[k],k));
+                }
+                firstarea.value = rs.data.agent.area_first[0];
+                secondarea.style.display = "inline";
+                secondarea.options.length=0;
+                for(var k in rs.data.parent.area_second){
+                    secondarea.options.add(new Option(rs.data.parent.area_second[k],k));
+                }
+                secondarea.value = rs.data.agent.area_second[0];
+                if(rs.data.parent.area_third.show != 0){
+                    thirdarea.style.display = "inline";
+                    thirdarea.options.length=0;
+                    for(var k in rs.data.parent.area_third){
+                        if(k == "show") continue;
+                        thirdarea.options.add(new Option(rs.data.parent.area_third[k],k));
+                    }
+                    thirdarea.value = rs.data.agent.area_third[0];
+                }
+                edit.style.display = "none";
+                save.style.display = "inline";
+                document.getElementById("agent_area_return").style.display = "inline";
+            }
+        }).post();
+    }
+
+    /**
+     * ps ：返回按钮事件
+     * Time：2015/11/26 17:46:32
+     * @author liuxin
+    */
+    function returnParent(){
+        var firstarea = document.getElementById("first_area").firstChild;
+        var secondarea = document.getElementById("second_area").firstChild;
+        var thirdarea = document.getElementById("third_area").firstChild;
+        var edit = document.getElementById("agent_area_edit");
+        var save = document.getElementById("agent_area_save");
+        document.getElementById("static_area").style.display = "inline";
+        firstarea.style.display = secondarea.style.display = thirdarea.style.display = "none";
+        firstarea.options.length = secondarea.options.length = thirdarea.options.length = 0;
+        edit.style.display = "inline";
+        save.style.display = "none";
+        document.getElementById("agent_area_return").style.display = "none";
+    }
+    /**
+   * ps ：获取二级地区
+   * Time：2015/11/18 10:04:00
+   * @author liuxin
+  */
+  function getChildArea(){
+    var firstarea = document.getElementById("first_area").firstChild;
+    var secondarea = document.getElementById("second_area").firstChild;
+    var thirdarea = document.getElementById("third_area").firstChild;
+    var area_id = firstarea.options[firstarea.selectedIndex].value;
+    if(area_id==''){
+      secondarea.style.display = "none";
+      secondarea.options.length=0;
+      thirdarea.style.display = "none";
+      thirdarea.options.length=0;
+      return;
+    }
+    new Request({
+      method:'post',
+      url:'?app=sysagent&ctl=admin_agent&act=getChildArea',
+      data:'area_id='+area_id,
+      onSuccess:function(rs){
+        thirdarea.style.display = "none";
+        thirdarea.options.length=0;
+        secondarea.style.display = "inline";
+        secondarea.options.length=0;
+        secondarea.options.add(new Option("-请选择-",''));
+        rs = JSON.decode(rs);
+        for(var k in rs.data){
+          secondarea.options.add(new Option(rs.data[k],k));
+        }
+      }
+    }).post();
+  }
+
+  /**
+   * ps ：获取三级地区
+   * Time：2015/11/18 10:04:00
+   * @author liuxin
+  */
+  function getThirdArea(){
+    var firstarea = document.getElementById("first_area").firstChild;
+    var secondarea = document.getElementById("second_area").firstChild;
+    var thirdarea = document.getElementById("third_area").firstChild;
+    var first_id = firstarea.options[firstarea.selectedIndex].value;
+    var second_id = secondarea.options[secondarea.selectedIndex].value;
+    if(second_id==''){
+      thirdarea.style.display = "none";
+      thirdarea.options.length=0;
+      return;
+    }
+    new Request({
+      method:'post',
+      url:'?app=sysagent&ctl=admin_agent&act=getThirdArea',
+      data:{'first_id':first_id,'second_id':second_id},
+      onSuccess:function(rs){
+        rs = JSON.decode(rs);
+        if(rs.success){
+          thirdarea.style.display = "inline";
+          thirdarea.options.length=0;
+          thirdarea.options.add(new Option("-请选择-",''));
+          for(var k in rs.data){
+            thirdarea.options.add(new Option(rs.data[k],k));
+          }
+        }
+      }
+    }).post();
+  }
+
+  /**
+   * ps ：保存代理商区域的修改
+   * Time：2015/11/26 17:46:44
+   * @author liuxin
+  */
+  function saveArea(){
+    var firstarea = document.getElementById("first_area").firstChild;
+    var secondarea = document.getElementById("second_area").firstChild;
+    var thirdarea = document.getElementById("third_area").firstChild;
+    var addr = document.getElementById("agent_addr");
+    var edit = document.getElementById("agent_area_edit");
+    var save = document.getElementById("agent_area_save");
+    var first_id = firstarea.options[firstarea.selectedIndex].value;
+    if(secondarea.style.display != "none"){
+        var second_id = secondarea.options[secondarea.selectedIndex].value;
+    }
+    if(thirdarea.style.display != "none"){
+        var third_id = thirdarea.options[thirdarea.selectedIndex].value;
+    }
+    var agentId = document.getElementById("agent_id").value;
+    new Request({
+        method:'post',
+        url:'?app=sysagent&ctl=admin_agent&act=saveArea',
+        data:{'first_id':first_id,'second_id':second_id,'third_id':third_id,'agent_id':agentId},
+        onSuccess:function(rs){
+            rs = JSON.decode(rs);
+            if(rs.success){
+                var newArea = rs.data.area_first
+                if(rs.data.area_second){
+                    newArea = newArea + rs.data.area_second;
+                    if(rs.data.area_third){
+                        newArea = newArea + rs.data.area_third;
+                    }
+                }
+                document.getElementById("static_area").innerText = newArea;
+                addr.value = newArea;
+            }
+            alert(rs.msg);
+            document.getElementById("static_area").style.display = "inline";
+            firstarea.style.display = secondarea.style.display = thirdarea.style.display = "none";
+            firstarea.options.length = secondarea.options.length = thirdarea.options.length = 0;
+            edit.style.display = "inline";
+            save.style.display = "none";
+            document.getElementById("agent_area_return").style.display = "none";
+        }
+    }).post();
+  }
+
+function showImage(){
+  var act_url = "?app=sysagent&ctl=admin_agent&act=showAgentImages&p[0]=<{$agent.agent_id}>";
+   _dialog = new Dialog( act_url,{title:"证件照片",width:.5,height:.7});
+}
+
+//2016-1-31 by jiang 保存时判断是否为一级代理商
+function subSure(){
+  var level=document.getElementById('level').value;
+  var btn=document.getElementById("btn");
+  if(level!='1级代理商'){
+      if(confirm("该代理商等级不为一级，确定修改吗？")){
+        btn.type = "submit";
+    }
+  }else{
+    btn.type = "submit";
+  }
+}
+</script>

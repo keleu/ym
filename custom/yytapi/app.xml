@@ -1,0 +1,18 @@
+<app>
+    <name>代理商app-api</name>
+    <description>积分代理商app专用接口</description>
+
+    <author>
+        <name>eqinfo开发团队</name>
+        <email>613557178@qq.com</email>
+        <url>www.eqinfo.com.cn</url>
+    </author>
+
+    <version>1.0</version>
+    <license>shopex license</license>
+    <parent_model_class>dbeav_model</parent_model_class>
+
+    <depends>
+        <app>base</app>
+    </depends>
+</app>

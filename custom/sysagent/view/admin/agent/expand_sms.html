@@ -1,0 +1,72 @@
+<div class="tabs-wrap">
+  <ul>
+    <li class="tab current"><span><{t}>发展一级代理商<{/t}></span></li>
+  </ul>
+</div>
+  <form method="post" action="?app=sysagent&ctl=admin_agent&act=expand_sms" id="whitelist">
+    <div style="text-align:right;padding:3px 30px"></div>
+    <tbody>
+      <table id="tableform" style="width:55%;">
+        <tr name="trRow">
+            <td>
+                <{t}>手机号码：<{/t}><{input type="text" name='mobile[]' value='' size="20" onchange=checkMobile(this) }>
+                <span name="mobile_validate" class="error caution notice-inline" style="display:none;">请输入正确的手机号</span>
+            </td>
+            <td>
+                <{t}>对方姓名：<{/t}><{input type="text" name='name[]' value='' size="20"}>
+            </td>
+            <td ><span onclick="addRow();" style="cursor:pointer;font-size:10pt;border:1px solid #efefef;padding:2px 10px 4px 10px;">+1行</span></td>
+        </tr>
+    </table>
+  </tbody>
+  <tfoot>
+      按钮点击后，系统将发送一条短信到对方的手机，请先和对方沟通好，以防对方当成骚扰短信
+    </tfoot>
+  <div class="table-action">
+    <{button type="submit"  label=$___desktop="发送短信"|t:'site' onclick="submitForm(event,2)"}>
+  </div>
+</form>
+<script type="text/javascript">
+ var submitForm = function (event,sign){
+  var _form=$('whitelist');
+  var target={
+    onComplete:function(rs){
+      if(rs&&!!JSON.decode(rs).success){
+        rs = JSON.decode(rs);
+        alert(rs.success);
+        // new MessageBox(rs.success||'<{t}>加载成功111...<{/t}>',{autohide:900000});
+        // window.location.reload();
+      }
+    }
+  };
+  _form.store('target',target);
+  _form.fireEvent('submit',new Event(event));
+ }
+
+  function addRow() {
+     var tb = document.getElementById("tableform");
+     var trRow=document.getElementsByName("trRow");
+     var rowIndex=trRow[0].cloneNode(true);
+     var rnum = tb.rows.length+1;  
+       
+     var row = tb.insertRow();  
+     row.innerHTML = rowIndex.innerHTML;
+     row.cells[2].innerHTML = '';
+  }
+  /**
+  * ps ：验证手机号码
+  * Time：2016/02/01 09:14:50
+  * @author jiang
+  */
+  function checkMobile(sMobile){
+    if(!(/^1([38]\d|4[57]|5[0-35-9]|7[06-8]|8[89])\d{8}$/.test(sMobile.value))){
+      sMobile.parentNode.childNodes[3].style.display = "inline";
+      sMobile.value = "";
+      sMobile.focus();
+    }
+    else{
+      sMobile.parentNode.childNodes[3].style.display = "none";
+    }
+  }
+</script>
+

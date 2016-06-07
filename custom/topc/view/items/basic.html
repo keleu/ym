@@ -1,0 +1,32 @@
+<div class="row">
+  <{include file="topc/items/basic/pic.html"}>
+  <div class="col-lg-11 box">
+    <div class="detail-panel">
+      <div class="detail-panel-bd">
+        <form action="<{url action=topc_ctl_cart@add mode=fastbuy}>" method="post" id="items_action_form">
+          <div class="detail-panel-info">
+            <div class="detail-panel-hd">
+              <h1>
+                <{if $activityDetail}>
+                <a href="<{url action=topc_ctl_activity@index id=$activityDetail.activity_info.activity_id}>" data-id="<{$group.activity_id}>">
+                  <span class="item-describe-tag"><{$activityDetail.activity_info.activity_tag}></span>
+                </a>
+                <{/if}>
+                <{$item.title}>
+              </h1>
+              <div><{$item.sub_title}></div>
+            </div>
+            <{include file="topc/items/basic/price.html"}>
+            <{include file="topc/items/basic/buy.html"}>
+            <!-- 隐藏服务承诺 -->
+            <!-- <div style="margin:70px 10px 10px 30px; font-size:13px;">
+              服务承诺 <span style="margin-left:30px;"><{$tuihuoRate}></span>
+              <span style="margin-left:30px;"><{$huanhuoRate}></span>
+            </div> -->
+          </div>
+          <{include file="topc/items/basic/shop.html"}>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

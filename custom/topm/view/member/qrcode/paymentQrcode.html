@@ -1,0 +1,21 @@
+<div class="member-detail shop">
+  <{include file="topm/common/top.html"}>
+  <div class="main">
+    <div align="center"><img id="payQrcode" src="<{$qrCode}>">
+    <div id='refresh-vcode' align="center"><a href="javascript:refreshVcode()"><img src="<{$refresh_src}>/images/refresh-circular-arrow.jpg" style="weigth：15px;height:15px;vertical-align:middle">&nbsp每分钟自动刷新</a></div></div>
+  </div>
+  <script>
+  var refreshQrcode = setInterval("refreshVcode()",180000);
+  function refreshVcode(){
+  	$.post('<{url action=topm_ctl_member@ajaxPayQrcode}>','',function(rs) {
+        $("#payQrcode").attr("src", rs);
+        clearInterval(refreshQrcode);
+		    refreshQrcode = setInterval("refreshVcode()",180000);
+        $('#refresh-vcode').html('<img src="<{$refresh_src}>/images/refresh-deno.png" style="weigth：25px;height:25px;vertical-align:middle">&nbsp<font color="#029745">已刷新</font>');
+        setTimeout(function(){ 
+          $('#refresh-vcode').html('<a href="javascript:refreshVcode()"><img src="<{$refresh_src}>/images/refresh-circular-arrow.jpg" style="weigth：15px;height:15px;vertical-align:middle">&nbsp每分钟自动刷新</a>');
+        },3000); 
+    });
+  }
+  </script>
+</div>

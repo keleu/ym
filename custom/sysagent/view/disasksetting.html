@@ -1,0 +1,53 @@
+<div class="tabs-wrap">
+  <ul>
+    <li class="tab current"><span><{t}>基本配置<{/t}></span></li>
+  </ul>
+</div>
+  <form method="post" action="?app=sysagent&ctl=agent_disask&act=saveSet" id="whitelist">
+    <div style="text-align:right;padding:3px 30px"></div>
+    <table class="tableform" style="width:99%;">
+    <tbody>
+        <tr>
+            <th><{t}>积分折扣率：<{/t}></th>
+            <td>
+                <{input type="text" name='agent_ratio' value=$agent_ratio size="20"}>元
+                <label class="help"><span class="notice-inline"> 默认1积分 = 0.1元</span></label>
+            </td>
+        </tr>
+        <tr>
+            <th><{t}>一级代理商默认验证码：<{/t}></th>
+            <td>
+                <{input type="text" name='agent_verify' value=$agent_verify size="20"}>
+                <label class="help"><span class="notice-inline">默认为平台方</span></label>
+            </td>
+        </tr>
+        <tr>
+        <th><{t}>审核状态是否开启短信通知：<{/t}></th>
+        <td>
+            <{input type="bool" name='agent_auditing' value=$agent_auditing id="bool"}>
+                <span class="notice-inline">
+            <{t}>默认为是<{/t}></span>
+        </td>
+      </tr>
+     
+      <tr>
+        <th><{t}>积分改变是否开启短信通知：<{/t}></th>
+        <td>
+            <{input type="bool" name='agent_arrival' value=$agent_arrival id="booll"}>
+                <span class="notice-inline">
+            <{t}>默认为是<{/t}></span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="table-action">
+    <{button type="submit"  label=$___desktop="保存"|t:'site'}>
+  </div>
+</form>
+<!--
+<script type="text/javascript">
+function check_all(o) {
+  o.getParent().getNext('span').getElements('input[type=checkbox]').set('checked', o.checked);
+}
+</script>
+-->

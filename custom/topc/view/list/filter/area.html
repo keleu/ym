@@ -1,0 +1,189 @@
+<div class="filter-attr">
+  <div class="filter-attr-title"><{t}>地区<{/t}>：</div>
+  <div class="filter-attr-list expand-panel">
+    <select name="shop_info[company_area_first]" id ="shop_info_first" onchange="getChild();" style="height: initial;">
+      <option value='no'>-请选择-</option>
+      <{foreach from=$areaMap item=itemarea}>
+      <option value="<{$itemarea.value}>" <{if $itemarea.value==$company_area_first}>selected="selected"<{/if}>><{$itemarea.value}></option>
+      <{/foreach}>
+    </select>
+    <select name="shop_info[company_area_second]" id="shop_info_second" onchange="getThird();" class="hide" style="height: initial;"></select>
+    <select name="shop_info[company_area_third]" id="shop_info_third" class="hide" style="height: initial;"></select>
+    <span style="display:initial;margin-left: 10px;background-color: red;color:white; border-color:transparent;border:1px solid #cccccc;display:inline-block;padding: 3px 5px 2px 5px;cursor: pointer;" class="onsure">确认</sapn>
+  </div>
+</div>
+
+<script>
+var areaMapJson = '<{$areaMap|json_encode}>';
+var areaMap = $.parseJSON(areaMapJson);
+var company_area_second = '<{$company_area_second}>';
+var company_area_third = '<{$company_area_third}>';
+var bz=0;
+  if(company_area_second){
+    bz=1;
+    getChild();
+    bz=0;
+  }
+  if(company_area_third && company_area_second!='no' && company_area_second){
+    bz=1;
+    getThird();
+    bz=0;
+  }
+
+  /**
+  * ps : 获取二级地区
+  * Time：2016/04/25 17:22:03
+  * @author jianghui
+  */
+  function getChild(){
+    var shop_info_first = $('#shop_info_first option:selected').val();
+    var first = areaMap[shop_info_first];
+    $('#shop_info_second').html('');
+    $('#shop_info_third').html('');
+    $('#shop_info_third').addClass('hide');
+    if(first){
+      var second = first['children'];
+      $('#shop_info_second').removeClass('hide');
+      $('#shop_info_second').append('<option value="no">-请选择-</option>');
+      $.each(second,function(n,value){
+        var str='';
+        str = '<option value="'+value.value+'"';
+        //第一次进来设置默认值
+        if(company_area_second && bz==1){
+          if(company_area_second == value.value){
+            str += 'selected="selected"';
+          }
+        }
+        str += '>'+value.value+'</option>';
+        $('#shop_info_second').append(str);
+      });
+    }else{
+      $('#shop_info_second').addClass('hide');
+    }
+    //替换url的值
+    // if(!bz){
+    //     var href = '<{url action=topc_ctl_list@index _params=$filter r_company_area_first=+++ operationtype=replace}>';
+    //     //将r_company_area_first的值替换
+    //     href = replaceArea(href,'r_company_area_first=',shop_info_first);
+
+    //     //将company_area_second的值替换
+    //     href = replaceArea(href,'company_area_second=','no');
+
+    //     //将company_area_third的值替换
+    //     href = replaceArea(href,'company_area_third=','no');
+    //     //界面跳转
+    //     window.location.href=href;
+    // }
+  }
+
+  /**
+  * ps ：获取三级地区
+  * Time：2016/04/25 17:23:45
+  * @author jianghui
+  */
+  function getThird(){
+    var shop_info_first = $('#shop_info_first option:selected').val();
+    var shop_info_second = $('#shop_info_second option:selected').val();
+    var second = shop_info_second=='no'?'':areaMap[shop_info_first]['children'][shop_info_second];
+    $('#shop_info_third').html('');
+    if(second){
+      var third = second['children'];
+      if(third){
+        $('#shop_info_third').removeClass('hide');
+        $('#shop_info_third').append('<option value="no">-请选择-</option>');
+        $.each(third,function(n,value){
+          var str='';
+          str = '<option value="'+value.value+'"';
+          if(company_area_third && bz==1){
+            if(company_area_third == value.value){
+              str += 'selected="selected"';
+            }
+          }
+          str += '>'+value.value+'</option>';
+          $('#shop_info_third').append(str);
+        });
+      }
+    }else{
+      $('#shop_info_third').addClass('hide');
+    }
+    //替换url的值
+    // if(!bz){
+    //     var href = '<{url action=topc_ctl_list@index _params=$filter company_area_second=+++ operationtype=replace}>';
+
+    //     //将company_area_second的值替换
+    //     href = replaceArea(href,'company_area_second=',shop_info_second);
+
+    //     //将company_area_third的值替换
+    //     if(second){
+    //       href = replaceArea(href,'company_area_third=','no');
+    //     }
+
+    //     //界面跳转
+    //     window.location.href=href;
+    // }
+  }
+
+  /**
+  * ps ：三级地区改变
+  * Time：2016/04/29 15:49:14
+  * @author jianghui
+  */
+function getLast(){
+  //替换url的值
+  if(!bz){
+    var shop_info_third = $('#shop_info_third option:selected').val();
+    var href = '<{url action=topc_ctl_list@index _params=$filter company_area_third=+++ operationtype=replace}>';
+
+    //将company_area_third的值替换
+    href = replaceArea(href,'company_area_third=',shop_info_third);
+
+    //界面跳转
+    window.location.href=href;
+  }
+}
+
+  /**
+  * ps ：替换地区值
+  * Time：2016/04/29 15:06:15
+  * @author jianghui
+  */
+  function replaceArea(href,area_key,area_value){
+    if(href.indexOf(area_key)==-1){
+      href = href+'&'+area_key+area_value;
+      return href;
+    }
+    var second_arr = href.split(area_key);
+    var len = second_arr[1].length;
+    var second_index = second_arr[1].indexOf('&');
+    var second_last = second_index==-1?'':second_arr[1].substring(second_index,second_arr[1].length);
+    href = second_arr[0]+area_key+area_value+second_last;
+    return href;
+  }
+
+  /**
+  * ps ：点击确认
+  * Time：2016/05/03 10:00:48
+  * @author jianghui
+  */
+  $(function(){
+    $(".onsure").click(function(){
+      var shop_info_first = $('#shop_info_first option:selected').val();
+      var shop_info_second = $('#shop_info_second option:selected').val();
+      var shop_info_third = $('#shop_info_third option:selected').val();
+
+      var href = '<{url action=topc_ctl_list@index _params=$filter r_company_area_first=+++ operationtype=replace}>';
+      //将r_company_area_first的值替换
+      href = replaceArea(href,'r_company_area_first=',shop_info_first);
+
+      //将company_area_second的值替换
+      shop_info_second = shop_info_second==undefined?'no':shop_info_second;
+      href = replaceArea(href,'company_area_second=',shop_info_second);
+
+      //将company_area_third的值替换
+      shop_info_third = shop_info_third==undefined?'no':shop_info_third;
+      href = replaceArea(href,'company_area_third=',shop_info_third);
+      //界面跳转
+      window.location.href=href;
+    })
+  });
+</script>

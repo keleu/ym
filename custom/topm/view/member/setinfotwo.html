@@ -1,0 +1,46 @@
+<div class="email-confirm shop">
+  <div class="ui-mask"></div>
+  <{include file="topm/common/top.html"}>
+  <div class="main" id="main">
+    <div class="order-fin">
+      <div class="center">
+        <div class="fin-icon">
+          <img src="images/order-icon.png" alt="">
+        </div>
+        <div class="success-info">
+          恭喜您，您的
+          <{if $sendType=='email'}>
+            <span class="info-su">邮箱绑定成功</span>
+          <{/if}>
+          <{if $sendType=='mobile'}>
+            <span class="thanks">手机绑定成功！</span>
+            <{if $next_checkout}>
+              <span style="color:orange;">正在跳转...</span>
+              <input type="hidden" name="next_checkout" id="next_checkout" value="<{$next_checkout}>">
+            <{/if}>
+          <{/if}>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  var next_checkout=$('#next_checkout').val();
+  var init_time=2;
+  $(function(){
+    if(next_checkout){
+      eqinfo_time = setInterval(eqinfo_fun,1000);
+    }
+  });
+  function eqinfo_fun(){
+      if(init_time == 1){
+        clearTimeout(eqinfo_time);
+        window.location.href=next_checkout;
+      }else{
+        clearInterval(eqinfo_fun,1000);
+      }
+      init_time--;
+    }
+
+
+</script>

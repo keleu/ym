@@ -1,0 +1,21 @@
+<services>
+    <service id="desktop_finder.sysagent_mdl_agents">
+        <class>sysagent_finder_agents</class>
+    </service>
+     <service id="desktop_finder.sysagent_mdl_audit_cancel">
+        <class>sysagent_finder_audit_cancel</class>
+    </service>
+    <service id="autocomplete.sysagent_autocomplete_agent">
+        <class>sysagent_service_agent_autocomplete</class>
+    </service>
+    <!--修改用户角色-->
+    <service id="desktop_finder.sysagent_mdl_roles">
+        <class>sysagent_finder_roles</class>
+    </service>
+    <service id="desktop_finder.sysagent_mdl_settlement_detail">
+        <class>sysagent_finder_settlement_detail</class>
+    </service>
+    <service id="desktop_finder.sysagent_mdl_settlement">
+        <class>sysagent_finder_settlement</class>
+    </service>
+</services>

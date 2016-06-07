@@ -1,0 +1,32 @@
+<style type="text/css">
+	.recom{padding-bottom: 10px;overflow:hidden;display:inline-block}
+	.recom .refpic{overflow: hidden;}
+	.recom .picture{float:left;padding-right:30px;color:#dd2434;display:block;}
+	.recom .picture .money{display:block;text-align:center;}
+	.recom .look{padding-bottom: 10px;color:#666;height:20px; padding-right: 36px}
+</style>
+<div class="recom">
+	<div class="look">
+		<span style="float:left;margin-left:10px;">看了又看<i class="icon" style="font-size:1.3em;cursor:pointer;"></i></span>
+		<span style="float:right;margin-right:10px;">换一组<i class="icon icon-refresh" style="font-size:1.3em;cursor:pointer;"></i></span>
+	</div>
+	<div class="refpic">
+	<{foreach from=$itemList item=item key=key}>
+		<{if $key<6}>
+		<div class="picture">
+			<a href="<{url action=topc_ctl_item@index item_id=$item.item_id}>" target="_blank"><img src="<{$item.image_default_id|storager:t}>" style="width:100px;height:100px;"></a>
+	      <span class='money'>
+	      	<{if $item.integral>0}>
+	      		<{$item.integral|pot}>
+	      	<{elseif $item.price>0}>
+	      		<{$item.price|cur}>
+	      	<{else}>
+	      		<{$item.blend}>
+	      	<{/if}>
+	      </span>
+		</div>
+		<{/if}>
+	<{/foreach}>
+	</div>
+	<div style="clear:both;"><input type="hidden" name="pageitem" value="0"/></div>
+</div>

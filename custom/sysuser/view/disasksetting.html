@@ -1,0 +1,30 @@
+<div class="tabs-wrap">
+  <ul>
+    <li class="tab current"><span><{t}>基本配置<{/t}></span></li>
+  </ul>
+</div>
+  <form method="post" action="?app=sysuser&ctl=admin_user&act=saveSet" id="whitelist">
+    <div style="text-align:right;padding:3px 30px"></div>
+    <table class="tableform" style="width:99%;">
+    <tbody>
+      <tr>
+        <th><{t}>积分改变是否开启短信通知：<{/t}></th>
+        <td>
+            <{input type="bool" name='user_change' value=$user_change id="bool"}>
+                <span class="notice-inline">
+            <{t}>默认为是<{/t}></span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="table-action">
+    <{button type="submit"  label=$___desktop="保存"|t:'site'}>
+  </div>
+</form>
+<!--
+<script type="text/javascript">
+function check_all(o) {
+  o.getParent().getNext('span').getElements('input[type=checkbox]').set('checked', o.checked);
+}
+</script>
+-->

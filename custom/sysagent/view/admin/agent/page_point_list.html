@@ -1,0 +1,32 @@
+<div container='true'>
+<div class="tableform">
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="gridlist">
+<col class="Coldate"></col>
+<col class="Coldetails"></col>
+<col class="Colamount"></col>
+<thead>
+<tr>
+  <th><{t}>日期<{/t}></th>
+  <th><{t}>摘要<{/t}></th>
+  <th><{t}>积分<{/t}></th>
+  <th><{t}>积分来源<{/t}></th>
+  <th><{t}>备注<{/t}></th>
+  <th><{t}>操作员<{/t}></th>
+  <!--<th><{t}>过期<{/t}></th> -->
+</tr></thead><tbody>
+
+<{foreach from=$point_log item="pointLog"}>
+<tr>
+   <td><{$pointLog.modified_time|cdate:SDATE_STIME}></td>
+   <td class="Coldetails"><{$pointLog.behavior}></td>
+   <td class="Colamount"><{$pointLog.point}></td>
+   <td class="Colamount"><{$pointLog.direction}></td>
+   <td class="Coldetails"><{$pointLog.remark}></td>
+   <td class="Colamount"><{$pointLog.operator}></td>
+</tr>
+<{/foreach}>
+</tbody>
+</table>
+ <{$pager}>
+</div>
+</div>

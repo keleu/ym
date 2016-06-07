@@ -1,0 +1,18 @@
+<app>
+    <name>会员微信服务号</name>
+    <description>微信服务号会员微信登录入口</description>
+
+    <author>
+        <name>eqinfo开发团队</name>
+        <email>613557178@qq.com</email>
+        <url>www.eqinfo.com.cn</url>
+    </author>
+
+    <version>1.0</version>
+    <license>shopex license</license>
+    <parent_model_class>dbeav_model</parent_model_class>
+
+    <depends>
+        <app>base</app>
+    </depends>
+</app>

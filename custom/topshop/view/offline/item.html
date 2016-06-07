@@ -1,0 +1,29 @@
+<tr id="item_info[<{$sku_id}>]">
+  <td>
+  </td>
+  <td>
+    <div class="goods">
+      <img src="<{$image_src}>" alt="">
+      <a href="<{url action=topc_ctl_item@index item_id=$item_id}>" target="_blank" style="text-align:left">
+      <{$item_title}><br><span style="color:#9C9C9C;font-size:80%;margin-top:8px;margin-bottom:0"><{$spec_info}></span></a>
+    </div>
+  </td>
+  <td>
+    <select id="item_price[<{$sku_id}>]" name="item_price[<{$sku_id}>]" class="offline-point" onchange="increasePrice(this)">
+      <{if $integral>0}><option value="<{$integral}>,0" <{if $is_select==0}>selected ="selected"<{/if}>><{$integral|pot}></option><{/if}>
+        <{if $blend}><option value="<{$blend}>,1" <{if $is_select==1}>selected ="selected"<{/if}>><{$blend}></option><{/if}>
+        <{if $price!='0.00'}><option value="<{$price}>,2" <{if $is_select==2}>selected ="selected"<{/if}>><{$price|cur}></option><{/if}>
+    </select>
+  </td>
+  <td>
+    <input type="hidden" id="sku_id[<{$sku_id}>]" name="sku_id[<{$sku_id}>]" value="<{$sku_id}>"/>
+    <input type="button" class="change-amount minus" onclick="decreaseAmount(this)" value="-"/><input id="item_amount[<{$sku_id}>]" name="item_amount[<{$sku_id}>]" oninput="changeAmount(this)" type="text" value="1" class="offline-amount"/><input type="button" class="change-amount plus" onclick="increaseAmount(this)" value="+"/>
+    <input type="hidden" id="old_amount[<{$sku_id}>]" name="old_amount[<{$sku_id}>]" value="1"/>
+  </td>
+  <td>
+  <span id="item_integral[<{$sku_id}>]" name="item_integral[<{$sku_id}>]"><{$item_integral}></span>积分+￥<span id="item_money[<{$sku_id}>]" name="item_money[<{$sku_id}>]"><{$item_price}></span>
+  <input id="total_fee[<{$sku_id}>]" name="total_fee[<{$sku_id}>]" type="hidden" value="<{$item_price}>" >
+  <input id="total_integral[<{$sku_id}>]" name="total_integral[<{$sku_id}>]" type="hidden" value="<{$item_integral}>" >
+  </td>
+  <td class="text-center"><input id="item_remove[<{$sku_id}>]" name="item_remove[<{$sku_id}>]" type="button" onclick="removeItem(this)" value="移除"/></td>
+</tr>

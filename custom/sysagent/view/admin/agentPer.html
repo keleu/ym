@@ -1,0 +1,328 @@
+<form id="agentForm" action="?app=sysagent&ctl=admin_agent&act=saveAgent"  method="POST" >
+    <div class="tableform">
+        <table width="100%" >
+            <tr><th><{t}>代理商类型：<{/t}></th><td><{input type="text" name="agent_username"  size="20" value="普通代理商" readonly="true"}><span></span></td></tr>
+            <tr><th><em class="red">*</em><{t}>用户名：<{/t}></th><td><{input type="text" name="agent_username" size="20" vtype="required"}><span></span></td></tr>
+            <tr><th><em class="red">*</em><{t}>姓名：<{/t}></th><td><{input type="text" name="agent_name"  size="20" vtype="required"}>
+            <{input type="hidden" name="agent_kind"  size="20" vtype="required" value='1'}>
+            <span></span></td></tr>
+            <!-- <tr><th><em class="red">*</em><{t}>登录密码：<{/t}></th><td><{input type="password" name="agent_passport" size="20" vtype="required"}></td></tr>
+            <tr><th><em class="red">*</em><{t}>确认密码：<{/t}></th><td><{input type="password" name="agent_confirm" size="20" vtype="required"}></td></tr> -->
+            <tr><th><em class="red">*</em><{t}>性别：<{/t}></th><td><input type="radio" name="agent_sex" value="0" checked="checked"><{t}>女<{/t}>&nbsp&nbsp&nbsp<input type="radio" name="agent_sex" value="1"><{t}>男<{/t}><span></span></td></tr>
+            <tr><th><em class="red">*</em><{t}>手机：<{/t}></th><td><{input type="text" name="agent_tel"  size="20" vtype="required" onchange=checkMobile(this)}><span id="mobile_validate" class="error caution notice-inline" style="display:none;">请输入正确的手机号</span></td></tr>
+            <tr><th><{t}>邮箱：<{/t}></th><td><{input type="text" name="agent_email"  size="20" onchange=checkMail(this)}><span id="eMail_validate" class="error caution notice-inline" style="display:none;">请输入正确的邮箱</span></td></tr>
+            <tr><th><em class="red">*</em><{t}>身份证号码：<{/t}></th><td><{input type="text" name="agent_idcard"  size="20" vtype="required" onchange=checkIdCard(this)}><span id="idCard_validate" class="error caution notice-inline" style="display:none;">请输入正确的身份证号</span></td></tr>
+            <tr><th><{t}>父代理商：<{/t}></th><td><!-- <{input id='agent_parent' type='select' name='agent_parent' options=$agent value=$agent.value onchange="getAgentArea()"}> -->
+            <{input type="text" id='agent_parentId' name="agent_parentId" autocompleter="sysagent_autocomplete_agent:username,agent_id" ac_options="{relative:true}" onchange="getAgentArea()"}>
+
+            <{input type="hidden" id='agent_parent' name="agent_parent" }>
+            <span class = "red"> (默认为平台方)</span></td></tr>
+            <tr><th><em class="red">*</em><{t}>所在地区：<{/t}></th><td><span id="area_first"><{input type="select" name="agent_area_first" vtype="required" options=$areaMap value=$areaMap.value onchange="getChild()"}>&nbsp&nbsp</span><span id="area_second"><{input type="select" name="agent_area_second" style="display:none" onchange="getThird()"}>&nbsp&nbsp</span><span id="area_third"><{input type="select" name="agent_area_third" style="display:none" onchange="setAddress()"}></span></td></tr>
+            <tr><th><em class="red">*</em><{t}>地址<{/t}></th><td><{input type="text" id="agent_address" name="agent_address"  size="20" vtype="required"}><span></span></td></tr>
+            <tr><th><{t}>身份证正面照：<{/t}></th>
+            <td><{input type="image" vtype="required" name="agent_picturez" width=100 height=100 value=''}> </td>
+          </tr>
+          <tr><th><{t}>身份证反面照：<{/t}></th>
+            <td><{input type="image" vtype="required" name="agent_picturef" width=100 height=100 value=''}> </td>
+          </tr>
+        </table>
+    </div>
+
+    <div class="table-action">
+    <{button id='agent-form-submit' label="保存"|t:'sysagent' onclick="submitForm(event,2)"}>
+    </div>
+</form>
+<script>
+  /**
+   * ps ：提交之前先检查该地区有几个一级代理
+   * Time：2015/11/24 17:05:50
+   * @author liuxin
+  */
+  var submitForm = function (event,sign){
+    var _form=$('agentForm');
+    var firstarea = document.getElementById("area_first").firstChild;
+    var secondarea = document.getElementById("area_second").firstChild;
+    var thirdarea = document.getElementById("area_third").firstChild;
+    var first_id;
+    var second_id;
+    var third_id;
+    if(firstarea.options[firstarea.selectedIndex]){
+      first_id = firstarea.options[firstarea.selectedIndex].value
+    }
+    if(secondarea.options[secondarea.selectedIndex]){
+      second_id = secondarea.options[secondarea.selectedIndex].value;
+    }
+    if(thirdarea.options[thirdarea.selectedIndex]){
+      third_id = thirdarea.options[thirdarea.selectedIndex].value;
+    }
+    else{
+      third_id = "-请选择-";
+    }
+    var parentId = document.getElementById("agent_parent").value;
+    // if(document.getElementById('mobile_validate').style.display == "inline"||document.getElementById('idCard_validate').style.display == "inline"||document.getElementById('eMail_validate').style.display == "inline"){
+    //   return;
+    // }
+    switch (sign){
+      case 1:
+        var target={
+          onComplete:function(){
+                       location.reload();
+                     }};
+        break;
+      case 2:
+        var target={
+          onComplete:function(rs){
+                       if(rs&&!!JSON.decode(rs).success){
+                           window.finderGroup['<{$env.get.finder_id}>'].refresh();
+                           _form.getParent('.dialog').retrieve('instance').close();
+                       }
+                     }};
+        break;
+    }
+    _form.store('target',target);
+    if(parentId != ""){
+      _form.fireEvent('submit',new Event(event));
+    }
+    else{
+      new Request({
+        method:'post',
+        url:'?app=sysagent&ctl=admin_agent&act=checkArea',
+        data:{'first_id':first_id,'second_id':second_id,'third_id':third_id},
+        onSuccess:function(rs){
+          rs = JSON.decode(rs);
+          if(rs.success){
+            _form.fireEvent('submit',new Event(event));
+          }else{
+            if(confirm(rs.msg)){
+              _form.fireEvent('submit',new Event(event));
+            }
+          }
+        }
+      }).post(); 
+    }
+
+  };
+
+  /**
+   * ps ：获取二级地区
+   * Time：2015/11/18 10:04:00
+   * @author liuxin
+  */
+  function getChild(){
+    var firstarea = document.getElementById("area_first").firstChild;
+    var secondarea = document.getElementById("area_second").firstChild;
+    var thirdarea = document.getElementById("area_third").firstChild;
+    var area_id = firstarea.options[firstarea.selectedIndex].value;
+    if(area_id==''){
+      secondarea.style.display = "none";
+      secondarea.options.length=0;
+      thirdarea.style.display = "none";
+      thirdarea.options.length=0;
+      document.getElementById("agent_address").value = "";
+      return;
+    }
+    document.getElementById("agent_address").value = firstarea.options[firstarea.selectedIndex].text;
+    new Request({
+      method:'post',
+      url:'?app=sysagent&ctl=admin_agent&act=getChildArea',
+      data:'area_id='+area_id,
+      onSuccess:function(rs){
+        thirdarea.style.display = "none";
+        thirdarea.options.length=0;
+        secondarea.style.display = "inline";
+        secondarea.options.length=0;
+        secondarea.options.add(new Option("-请选择-",''));
+        rs = JSON.decode(rs);
+        for(var k in rs.data){
+          secondarea.options.add(new Option(rs.data[k],k));
+        }
+      }
+    }).post();
+  }
+
+  /**
+   * ps ：获取三级地区
+   * Time：2015/11/18 10:04:00
+   * @author liuxin
+  */
+  function getThird(){
+    var firstarea = document.getElementById("area_first").firstChild;
+    var secondarea = document.getElementById("area_second").firstChild;
+    var thirdarea = document.getElementById("area_third").firstChild;
+    var first_id = firstarea.options[firstarea.selectedIndex].value;
+    var second_id = secondarea.options[secondarea.selectedIndex].value;
+    if(second_id==''){
+      thirdarea.style.display = "none";
+      thirdarea.options.length=0;
+      document.getElementById("agent_address").value = firstarea.options[firstarea.selectedIndex].text;
+      return;
+    }
+    document.getElementById("agent_address").value = firstarea.options[firstarea.selectedIndex].text + secondarea.options[secondarea.selectedIndex].text;
+    new Request({
+      method:'post',
+      url:'?app=sysagent&ctl=admin_agent&act=getThirdArea',
+      data:{'first_id':first_id,'second_id':second_id},
+      onSuccess:function(rs){
+        rs = JSON.decode(rs);
+        if(rs.success){
+          thirdarea.style.display = "inline";
+          thirdarea.options.length=0;
+          thirdarea.options.add(new Option("-请选择-",''));
+          for(var k in rs.data){
+            thirdarea.options.add(new Option(rs.data[k],k));
+          }
+        }
+      }
+    }).post();
+  }
+
+  /**
+   * ps ：根据选中地区设置地址
+   * Time：2015/11/25 10:27:41
+   * @author liuxin
+  */
+  function setAddress(){
+    var firstarea = document.getElementById("area_first").firstChild;
+    var secondarea = document.getElementById("area_second").firstChild;
+    var thirdarea = document.getElementById("area_third").firstChild;
+    if(thirdarea.options[thirdarea.selectedIndex].text != "-请选择-"){
+      document.getElementById("agent_address").value = firstarea.options[firstarea.selectedIndex].text + secondarea.options[secondarea.selectedIndex].text + thirdarea.options[thirdarea.selectedIndex].text;
+    }
+    else{
+      document.getElementById("agent_address").value = firstarea.options[firstarea.selectedIndex].text + secondarea.options[secondarea.selectedIndex].text;
+    }
+  }
+
+  /**
+   * ps ：根据选中上级代理商自动选择地区
+   * Time：2015/11/24 10:06:18
+   * @author liuxin
+  */
+  function getAgentArea(){
+    // alert(1);
+    var firstarea = document.getElementById("area_first").firstChild;
+    var secondarea = document.getElementById("area_second").firstChild;
+    var thirdarea = document.getElementById("area_third").firstChild;
+    var agent_name = document.getElementById("agent_parentId").value;
+    // var parentId = agent_parent.options[agent_parent.selectedIndex].value;
+    var i = -1;
+    new Request({
+      method:'post',
+      url:'?app=sysagent&ctl=admin_agent&act=getAgentArea',
+      data:'agent_name=' + agent_name,
+      onSuccess:function(rs){
+        rs = JSON.decode(rs);
+        if(rs.success){
+          if(agent_name != ""){
+            if(rs.data[0]["area_first"]!=null&&rs.data[0]["area_first"]!=''){
+              document.getElementById("agent_parent").value=rs.data['agent_id'];
+
+              thirdarea.style.display = "none";
+              thirdarea.options.length=0;
+              firstarea.options.length=0;
+              firstarea.options.add(new Option(rs.data[0]["area_first"]));
+              secondarea.style.display = "inline";
+              secondarea.options.length=0;
+              for(var k in rs.data[1]){
+                secondarea.options.add(new Option(rs.data[1][k]));
+                i++;
+              }
+              secondarea.options[i].selected = "selected";
+              i = -1;
+              if(rs.data[2].length != 0){
+                thirdarea.style.display = "inline";
+                thirdarea.options.length=0;
+                for(var k in rs.data[2]){
+                  thirdarea.options.add(new Option(rs.data[2][k]));
+                  i++;
+                }
+                thirdarea.options[i].selected = "selected";
+              }
+            }
+            else{
+              document.getElementById("agent_parent").value='';
+              secondarea.style.display = "none";
+              secondarea.options.length=0;
+              thirdarea.style.display = "none";
+              thirdarea.options.length=0;
+              firstarea.options.length=0;
+              firstarea.options.add(new Option("请输入正确的代理商",''));
+            }
+          }
+          else{
+            document.getElementById("agent_parent").value='';
+            firstarea.options.length=0;
+            firstarea.options.add(new Option("-请选择-",''));
+            for(var k in rs.data){
+              firstarea.options.add(new Option(rs.data[k],k));
+            }
+            secondarea.style.display = "none";
+            secondarea.options.length=0;
+            thirdarea.style.display = "none";
+            thirdarea.options.length=0;
+          }
+        }
+        if(firstarea.options[firstarea.selectedIndex].text == "-请选择-"){
+          document.getElementById("agent_address").value = "";
+        }
+        else if(secondarea.style.display == "none"||secondarea.options[secondarea.selectedIndex].text == "-请选择-"){
+          document.getElementById("agent_address").value = firstarea.options[firstarea.selectedIndex].text;
+        }
+        else if(thirdarea.style.display == "none"||thirdarea.options[thirdarea.selectedIndex].text == "-请选择-"){
+          document.getElementById("agent_address").value = firstarea.options[firstarea.selectedIndex].text + secondarea.options[secondarea.selectedIndex].text;
+        }
+        else{
+          document.getElementById("agent_address").value = firstarea.options[firstarea.selectedIndex].text + secondarea.options[secondarea.selectedIndex].text + thirdarea.options[thirdarea.selectedIndex].text;
+        }
+      }
+    }).post();
+  }
+
+  /**
+   * ps ：验证手机号
+   * Time：2015/11/30 13:46:34
+   * @author liuxin
+  */
+  function checkMobile(sMobile){
+    if(!(/^1([38]\d|4[57]|5[0-35-9]|7[06-8]|8[89])\d{8}$/.test(sMobile.value))){
+      document.getElementById('mobile_validate').style.display = "inline";
+      sMobile.value = "";
+      sMobile.focus();
+    }
+    else{
+      document.getElementById('mobile_validate').style.display = "none";
+    }
+  }
+
+  /**
+   * ps ：验证身份证号
+   * Time：2015/11/30 13:46:46
+   * @author liuxin
+  */
+  function checkIdCard(idCard){
+    if(!/^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x))$/.test(idCard.value)){
+      document.getElementById('idCard_validate').style.display = "inline";
+      idCard.value = "";
+      idCard.focus();
+    }
+    else{
+      document.getElementById('idCard_validate').style.display = "none";
+    }
+  }
+
+  /**
+   * ps ：验证邮箱
+   * Time：2015/11/30 13:47:00
+   * @author liuxin
+  */
+  function checkMail(eMail){
+    if(!/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/.test(eMail.value)&&eMail.value!=''){
+      document.getElementById('eMail_validate').style.display = "inline";
+      eMail.value = "";
+      eMail.focus();
+    }
+    else{
+      document.getElementById('eMail_validate').style.display = "none";
+    }
+  }
+</script>

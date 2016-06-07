@@ -1,0 +1,28 @@
+<table cellspacing="0" cellpadding="0" style="width:100%">
+  <col class="Colauto"></col>
+  <!--col class="Coloption_1b"></col-->
+  <col class="Coloption_1b" ></col>
+  <col class="Coloption_1b"></col>
+  <col class="Coloption_1b"></col>
+  <col></col>
+  <tbody>
+    <{foreach from=$childData item=item key=id name="item"}>
+    <{if $item.disabled}><{continue}><{/if}>
+    <tr parentid="<{$id}>" class="provice-bg">
+      <td style="text-align:left;width:20.4% " nowrap>
+        <div style="padding-left:<{$step*25}>px">
+          <{if $item.is_child}>
+              <span class="imgTree" onclick="clickTree(this);" id="<{$id}>" level="<{$level}>" > &nbsp;&nbsp; </span>
+          <{else}>
+          <span class="imgTree tree_open" id="<{$id}>" level="<{$level}>"> &nbsp;&nbsp; </span>
+          <{/if}>
+          <span ><{$item.value}></span>
+        </div>
+      </td>
+      <td style="width:33.2%"><{$item.area}></td>
+      <td style="width:24.24%"><{$item.mobile}></td>
+      <td style="width:22.16%"><{$item.point}></td>
+    </tr>
+    <{/foreach}>
+  </tbody>
+</table>

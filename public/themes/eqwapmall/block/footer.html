@@ -1,0 +1,69 @@
+
+<!-- footer -->
+<footer class="footer">
+  <section class="link link-menu-eqinfo">
+    <ul>
+      <li>
+        <a href="<{url action=topm_ctl_default@index}>">
+          <i class="icon icon-home"></i>
+          首页
+        </a>
+      </li>
+      <li>
+        <a href="<{url action=topm_ctl_cart@index}>"> <i class="icon icon-cart"></i>
+          购物车
+        </a>
+      </li>
+      <li>
+        <a href="<{url action=topm_ctl_member@index}>">
+          <i class="icon icon-member"></i>
+          我的
+        </a>
+      </li>
+      <li>
+        <a href="tel://4008638633">
+          <i class="icon icon-news"></i>
+          客服
+        </a>
+      </li>
+    </ul>
+  </section>
+  <!-- <section class="edition">
+    <ul>
+      <li style="width:50%">
+        <a href="<{url route=topm}>">触屏版</a>
+      </li>
+      <li style="width:50%">
+        <a href="<{url route=siwtchToPc}>">电脑版</a>
+      </li>
+    </ul>
+  </section> -->
+  <section class="footer-edit" style="background:#e1e1e1">
+    <{wapfooter}>
+  </section>
+</footer>
+<style>
+.link{
+  position: fixed; 
+  width: 100%; 
+  bottom: 0px; 
+  background-color: #DCFCE9; 
+}
+</style>
+<script>
+  // $('#backTop').backTop();
+
+  var winh = $(window).height();
+  // var winh = window.innerHeight;
+  var bodyh = $('body').height();
+  var fth  = $('footer').height();
+  var fteh = $('.link-menu-eqinfo').height();
+  // $('footer').prev('div').css('padding-bottom',fth+fteh);
+  $('.footer-edit').css('margin-bottom',fteh);
+  if(window.innerHeight>bodyh){
+    $('footer').prev('div').css('min-height',window.innerHeight-fth);
+  }
+
+  
+</script>
+

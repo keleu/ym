@@ -1,0 +1,7 @@
+<cronentries>
+    <cron id="sysagent_tasks_settlement">
+        <description>统计更新代理商每月结算汇总单</description>
+        <schedule> 0 0 1 * *</schedule>
+        <enabled>true</enabled>
+    </cron>
+</cronentries>

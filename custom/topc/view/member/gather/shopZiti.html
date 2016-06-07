@@ -1,0 +1,67 @@
+<div id="takegoods_dialog" style="" class="takegoods-dialog">
+<ul>
+  <{if $data}>
+  <form action="<{url action=topc_ctl_member_aftersales@sendZiti}>" method="post" id="ajaxForm" >
+  <li class="form-item">
+    <label for="" class="form-label">选择自提地点</label>
+    <input type="hidden" name="ziti_id" id="ziti_id" value="" />
+    <input type='hidden' name='aftersales_bn' value='<{$aftersales_bn}>'>
+    <{foreach from=$data item=ziti}>
+    <div class="item-addr form-act clearfix" data-id="<{$ziti.id}>" data-addr="<{$ziti.name}>">
+      <span class="takegoods-addr <{if $ziti_id == $ziti.id}>active <{/if}>" ><div class="choose-triangle"></div>
+        <i class="icon icon-checkmark" data-icon="\2838"></i><{$ziti.name}></span>
+        <a class="map_btn" href="<{url action=topc_ctl_cart@consultMap ziti_id=$ziti.id}>" target="_blank">详细地图</a>
+        <span class="sp-addr font-addr">地址：<{$ziti.area}> <{$ziti.addr}></span>
+
+    </div>
+    <{/foreach}>
+    <span class="validation-messagebox"></span>
+  </li>
+  <li class="form-item last ">
+    <label for="" class="form-label"></label>
+    <span class="form-act">
+      <button type="submit" class="btn btn-import ziti-save"><span><span>提交自提点</span></span></button>
+      <button type="button" class="btn btn-simple action-reset dialog-btn-close"><span><span>取消</span></span></button>
+    </span>
+  </li>
+  </form>
+  <{else}>
+
+  <li class="form-item takegoods-item-prompt">
+    <span> 您选择的收货地区不支持自提，请选择其他的配送方式</span>
+    <span class="form-act">
+      <br>
+      <button type="button" class="btn btn-simple action-reset dialog-btn-close"><span><span>取消</span></span></button>
+    </span>
+  </li>
+  <{/if}>
+  <li class="form-item takegoods-item-prompt">
+    <!--
+    <span class="form-act">
+      温馨提示：<br />
+    </span>
+    -->
+  </li>
+</ul>
+</div>
+<style type="text/css">
+.font-addr{
+  vertical-align: middle;
+  line-height: 30px !important;
+
+}
+.takegoods-dialog .takegoods-addr{
+  margin-right: 0px !important;
+}
+.map_btn{
+  height: 30px;
+  border: 1px solid #ec8691;
+  margin-right: -1px;
+  line-height: 30px !important;
+  padding: 0px 10px 0px 10px;
+  background-color: #f8e4e6;
+  margin-right: 10px;
+  color: #454545 !important;
+}
+</style>
+

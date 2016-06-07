@@ -1,0 +1,193 @@
+<form  action="<{url action=topshop_ctl_shop_ziti@savearea}>" method="post" class="form-horizontal" data-validate-onsuccess="ajaxSubmit" role="form">
+<input type='hidden' name='id' value="<{$ziti.id}>">
+  <div class="panel panel-default">
+    <div class="panel-body">
+    <div style = 'float:left;width:50%'>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><{t}>自提点名称<{/t}>：</label>
+        <div class="col-sm-8">
+            <span class="control-label">
+              <input type="text" name='name' value="<{$ziti.name}>">
+            </span>
+      </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><{t}>所在地区<{/t}>：</label>
+        <div class="col-sm-8">
+            <span class="form-act">
+              <span id="area" data-validate="area"></span>
+            </span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><{t}>详细地址<{/t}>：</label>
+        <div class="col-sm-8">
+          <label class="control-label">
+            <input type="text" name='address' value="<{$ziti.addr}>">
+            <a href="javascript:locate()">定位</a>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><{t}>经纬度<{/t}>：</label>
+        <div class="col-sm-8">
+          <label class="control-label">
+            <input type="text" id="longitude" class="coordinate" name='longitude' value="<{$ziti.longitude}>"><input id="latitude" type="text" name='latitude' class="coordinate" value="<{$ziti.latitude}>"><span>右方地图小幅调整经纬度</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><{t}>联系方式<{/t}>：</label>
+        <div class="col-sm-8">
+          <label class="control-label">
+            <input type="text" id="tel" name='tel' value="<{$ziti.tel}>"><span> 手机或电话号码</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><{t}>图片<{/t}>：</label>
+        <div class="col-sm-5">
+          <a class="select-image" data-toggle="modal" href="<{url action=topshop_ctl_shop_image@loadImageModal}>" data-target="#gallery_modal">
+            <input type="hidden" name="ziti_image" value="<{$ziti.ziti_image}>">
+            <div class="img-put">
+              <img src="<{$ziti.ziti_image}>">
+              <i class="glyphicon glyphicon-picture"></i>
+            </div>
+          </a>
+          <span class="help-block">推荐：门店店面照</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-4 control-label"><{t}>自提点介绍<{/t}>：</label>
+        <div class="col-sm-8">
+          <label class="control-label">
+            <textarea id="memo" name='memo' style="width:250px;height:80px;"><{$ziti.memo}></textarea>
+          </label>
+        </div>
+      </div>
+      </div>
+      <div style="height:500px;width:50%;border: 1.5px solid #3C8DBC;float:right;">
+        <div id="container"></div>
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-5 col-sm-2">
+      <button type="submit" class="btn btn-primary btn-lg btn-block">保存</button>
+    </div>
+  </div>
+</form>
+
+</body>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=XcNQnDv4UhAffDKc3DpbhjF9"></script>
+<script type="text/javascript" src="<{$env.base_url}>/app/topc/statics/scripts/area_select.js"></script>
+<style type="text/css">
+#container{
+  width: 100%;
+  height:100%}
+#container img{max-width: none!important  }
+.coordinate{
+  width: 80px;
+  margin-right: 8px;
+}
+.form-act select {
+    margin-right: 10px;
+    border-color: darkgray;
+    height: 25px;
+    vertical-align: middle;
+    margin-top: 3px;
+}
+#area{
+  vertical-align: middle;
+}
+</style>
+<script>
+  var map = new BMap.Map("container");          // 创建地图实例
+  var longitude = $('#longitude').val();
+  var latitude = $('#latitude').val();
+  longitude = longitude?longitude:'119.975'
+  latitude = latitude?latitude:'31.687'
+  var point = new BMap.Point(longitude, latitude);  // 创建点坐标
+  map.centerAndZoom(point, 15);                 // 初始化地图，设置中心点坐标和地图级别
+  map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+  var markerTmp = new BMap.Marker(point);        // 创建标注
+  map.addOverlay(markerTmp);                     // 将标注添加到地图中
+  map.addEventListener("click", function(e){
+    //根据坐标获取地址并填充的功能暂不支持，todo...
+    document.getElementById('longitude').value = e.point.lng;
+    document.getElementById('latitude').value = e.point.lat;
+    map.removeOverlay(markerTmp);
+    var point = new BMap.Point(e.point.lng, e.point.lat);
+    var marker = new BMap.Marker(point);        // 创建标注
+    markerTmp = marker;
+    map.addOverlay(marker);                     // 将标注添加到地图中
+  });
+
+  /**
+  * ps ：提交验证
+  * Time：2016/05/11 14:41:00
+  * @author jianghui
+  */
+  function ajaxSubmit (e) {
+    var form = e.target;
+    e.preventDefault();
+    $.post(form.action, $(form).serialize(), function(rs) {
+      if(rs.error) {
+        $('#messagebox').message(rs.message);
+        return;
+      }
+      if(rs.success) {
+        $('#messagebox').message(rs.message, 'success');
+      }
+      if(rs.redirect) {
+        setTimeout(function(){location.href=rs.redirect;}, 800);
+      }
+    });
+  }
+
+  /**
+  * ps ：定位显示坐标
+  * Time：2016/05/11 14:43:25
+  * @author jianghui
+  */
+  function locate(){
+    var area = $("input[name='area[]']").val();
+    var addr = $("input[name='address']").val();
+    if(area == ''){
+      return;
+    }
+    else{
+      $.ajax({
+        type: "post",
+        url: "<{url action=topshop_ctl_shop_ziti@getarea}>",
+        data: {area:area,addr:addr},
+        dataType: "json",
+        success: function(ds){
+          var myGeo = new BMap.Geocoder();
+          myGeo.getPoint(ds.address, function(point){
+            if (point) {
+              $("#longitude").val(point.lng);
+              $("#latitude").val(point.lat);
+              map.removeOverlay(markerTmp);
+              map.centerAndZoom(point, 15);
+              markerTmp = new BMap.Marker(point);
+              map.addOverlay(markerTmp);
+            }
+          }, ds.first);
+        }
+      })
+    }
+  }
+</script>
+<script>
+  /**
+  * ps ：获取地区
+  * Time：2016/05/11 14:44:26
+  * @author jianghui
+  */
+  new AreaWidget({
+      dataUrl:"<{$env.base_url}>/app/ectools/statics/scripts/region.json",
+      select:$('#area'),
+      initData:"<{$ziti.area}>"
+  });
+</script>

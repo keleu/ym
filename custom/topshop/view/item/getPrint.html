@@ -1,0 +1,14 @@
+<div style="width:100px;">
+  <{foreach from=$qrCode_t item=gitem}>
+  <img src="<{$gitem.code}>"/>
+  <div><{$gitem.barcode}></div>
+  <{/foreach}>
+</div>
+<script type="text/javascript">
+window.onload = function() //这个函数页面加载完的时候会执行
+{
+    window.print(); //打印当前页面
+    window.history.go(-1)
+    // window.location = "";//你下一个页面
+}
+</script>

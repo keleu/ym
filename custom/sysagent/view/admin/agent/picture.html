@@ -1,0 +1,7 @@
+<{foreach from=$pictures item=item}>
+<div>
+	<!-- <a href="<{$item['l']}>" target="_blank"><img src="<{$item['t']}>"><i class="icon icon-search-a"></i></a> -->
+	<a href="<{$item['l']|storager:'l'}>" target="_blank"><img width="64" height="64" src="<{$item['l']|storager:t}>"><i class="icon icon-search-a"></i></a>
+</div>
+<{/foreach}>
+

@@ -1,0 +1,7 @@
+<cronentries>
+    <cron id="sysuser_tasks_clearpoint">
+        <description>处理会员过期积分</description>
+        <schedule> 0 23 1 * *</schedule>
+        <enabled>true</enabled>
+    </cron>
+</cronentries>

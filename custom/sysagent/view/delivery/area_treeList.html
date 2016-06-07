@@ -1,0 +1,111 @@
+<!-- <div class="notice">注意：所有地区操作后都需要保存同步到前台，不然会前台地区组件选择和当前显示不一致</div> -->
+<form action="?app=sysagent&ctl=admin_regions&act=resetFile" id="catEditor" method="post" target="{update:'messagebox'}">
+<!--   <div class="gridlist-action">
+    <{button label=$___sysagent="添加地区"|t:'sysagent' app="desktop" onclick="new Dialog('?app=sysagent&ctl=admin_regions&act=showNewArea',{height:260,title:'添加地区'})" icon="btn_add.gif"}>
+
+    <{assign var="message2" value=$___ectools="恢复后现在的地区信息将会完全被覆盖，确定要恢复吗？"|t:'ectools'}>
+    <{assign var="message3" value=$___ectools="恢复中..."|t:'ectools'}>
+    <{button label=$___ectools="恢复初始数据"|t:'ectools' onclick="new Event(event).stop();if(!confirm('{$message2}'))return false;this.innerHTML='{$message3}';W.page('?app=sysagent&ctl=admin_regions&act=init');"}>
+  </div> -->
+  <table cellspacing="0" cellpadding="0" class="gridlist">
+    <col class="Colauto"></col>
+    <col class="Coloption_1b"></col>
+    <col class="Coloption_1b" ></col>
+    <col class="Coloption_1b"></col>
+    <col class="Coloption_1b"></col>
+    <col></col>
+    <thead>
+      <th><{t}>地区名称<{/t}></th>
+      <!--th><{t}>排序<{/t}></th-->
+      <!-- <th><{t}>添加子地区<{/t}></th> -->
+      <!-- <th><{t}>编辑<{/t}></th> -->
+      <!-- <th><{t}>删除<{/t}></th> -->
+      <th><{t}>余额<{/t}></th>
+    </thead>
+    <tbody>
+      <{foreach from=$areaMap item=item key=key name="item"}>
+      <{if $item.disabled}><{continue}><{/if}>
+      <tr parentid="<{$item.id}>" class="provice-bg">
+        <td style="text-align:left; width:320px;">
+          <div style="padding-left:25px">
+            <{if $item.children}>
+            <span class="imgTree" onclick="clickTree(this);" id="<{$item.id}>" level="<{$level}>"> &nbsp;&nbsp; </span>
+            <{else}>
+            <span class="imgTree tree_open" id="<{$item.id}>" level="<{$level}>"> &nbsp;&nbsp; </span>
+            <{/if}>
+            <a style="font-weight:700; color:#000; text-decoration:none;padding-right:15px;" >
+              <{$item.value}>
+            </a>
+          </div>
+        </th>
+        
+        <td></td>
+      </tr>
+      <{/foreach}>
+    </tbody>
+  </table>
+</form>
+
+<{area inject=".mainFoot"}>
+<!-- <div class="table-action">
+  <{button label=$___sysagent="保存同步到前台"|t:'sysagent' onclick="$('catEditor').fireEvent('submit',{stop:function(){}})"}>
+</div> -->
+<{/area}>
+<script>
+  function clickTree(el){
+    var el=$(el), obj = el.getParent('[parentid]'),area=obj.innerText;
+    if(!el.hasClass("tree_open")){
+      if(!obj.getNext() || !obj.getNext().get('readstatus')){
+        var tr=new Element('tr[readstatus=1]').injectAfter(obj).setHTML('<td colspan="6" style="border:0;padding:0;"></td>');
+        W.page('?app=sysagent&ctl=admin_regions&act=getChildNode',{update:tr.firstChild,method:'post',data:'regionId='+el.id+'&level='+el.get('level')+'&area='+area});
+      }
+      obj.getNext().show();
+      el.addClass("tree_open");
+    }else{
+      obj.getNext().hide();
+      el.removeClass("tree_open");
+    }
+  }
+  function clickTreeSon(el){
+    var el=$(el), obj = el.getParent('[parentid]'),area=obj.innerText;
+    if(!el.hasClass("tree_open")){
+      if(!obj.getNext() || !obj.getNext().get('readstatus')){
+        var tr=new Element('tr[readstatus=1]').injectAfter(obj).setHTML('<td colspan="0" style="border:0;padding:0;"></td>');
+        W.page('?app=sysagent&ctl=admin_regions&act=getChildNodeSon',{update:tr.firstChild,method:'post',data:'regionId='+el.id+'&level='+el.get('level')+'&area='+area});
+      }
+      obj.getNext().show();
+      el.addClass("tree_open");
+    }else{
+      obj.getNext().hide();
+      el.removeClass("tree_open");
+    }
+  }
+  function clickTreeSec(el){
+    var el=$(el), obj = el.getParent('[parentid]'),area=obj.innerText;
+    if(!el.hasClass("tree_open")){
+      if(!obj.getNext() || !obj.getNext().get('readstatus')){
+        var tr=new Element('tr[readstatus=1]').injectAfter(obj).setHTML('<td colspan="0" style="border:0;padding:0;"></td>');
+        W.page('?app=sysagent&ctl=admin_regions&act=getChildNodeSec',{update:tr.firstChild,method:'post',data:'regionId='+el.id+'&level='+el.get('level')+'&area='+area});
+      }
+      obj.getNext().show();
+      el.addClass("tree_open");
+    }else{
+      obj.getNext().hide();
+      el.removeClass("tree_open");
+    }
+  }
+  function clickTreeThird(el){
+    var el=$(el), obj = el.getParent('[parentid]'),area=obj.innerText;
+    if(!el.hasClass("tree_open")){
+      if(!obj.getNext() || !obj.getNext().get('readstatus')){
+        var tr=new Element('tr[readstatus=1]').injectAfter(obj).setHTML('<td colspan="0" style="border:0;padding:0;"></td>');
+        W.page('?app=sysagent&ctl=admin_regions&act=getChildNodeThird',{update:tr.firstChild,method:'post',data:'regionId='+el.id+'&level='+el.get('level')+'&area='+area});
+      }
+      obj.getNext().show();
+      el.addClass("tree_open");
+    }else{
+      obj.getNext().hide();
+      el.removeClass("tree_open");
+    }
+  }
+</script>

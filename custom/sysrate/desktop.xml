@@ -1,0 +1,31 @@
+<desktop>
+    <permissions>
+        <!--会员--><!-- 2016.4.21 by yangjie 修改sysuser.wrokground.rate为sysuser.wrokground.user -->
+        <permission id="rate" display='true' parent='0' workground='sysuser.wrokground.user'>评价管理</permission>
+        <!--意见反馈-->
+        <permission id="feedback" display='true' parent='0' workground='sysshop.workground.shoptype'>意见反馈管理</permission>
+        <!-- 2016.4.21 by yangjie 添加商品咨询管理 -->
+        <permission id="consultation" display='true' parent='0' workground='sysshop.workground.item'>商品咨询管理</permission>
+    </permissions>
+
+    <workground name="会员" id="sysuser.wrokground.user" controller="traderate" action="index" order='30'>
+        <menugroup name="评价管理">
+            <menu controller='traderate' action='index' permission='rate' display='true' order='30'>评论列表</menu>
+            <menu controller='appeal' action='index' permission='rate' display='true' order='30'>申诉列表</menu>
+        </menugroup>
+    </workground>
+
+    <workground name="商家" id="sysshop.workground.shoptype" controller="admin_shoptype" action="index" order='90'>
+        <menugroup name="意见反馈">
+            <menu controller='feedback' action='index' permission='feedback' display='true' order='42'>意见反馈</menu>
+        </menugroup>
+    </workground>
+
+    <workground name="商品" id="sysitem.workground.item" controller="admin_item" action="index" order='90'>
+        <menugroup name="商品咨询">
+            <!-- 2016.4.21 by yangjie 修改permission='rate'为permission='consultation' -->
+            <menu controller='consultation' action='index' permission='consultation' display='true' order='30'>咨询列表</menu>
+        </menugroup>
+    </workground>
+
+</desktop>

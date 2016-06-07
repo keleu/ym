@@ -1,0 +1,52 @@
+<div class="tabs-wrap">
+  <ul>
+    <li class="tab current"><span><{t}>移动端支付方式设置<{/t}></span></li>
+  </ul>
+</div>
+  <form method="post" action="?app=sysagent&ctl=agent_disask&act=saveSetting" id="whitelist">
+    <div style="text-align:right;padding:3px 30px"></div>
+    <table class="tableform" style="width:99%;">
+    <tbody>
+        <tr>
+            <th><{t}>微信支付是否开启：<{/t}></th>
+            <td>
+                <{input type="bool" name='agent_pointpay' value=$agent_pointpay }>
+                <label class="help"><span class="notice-inline"> <{t}>默认为是<{/t}> </span></label>
+            </td>
+        </tr>
+        <tr>
+            <th><{t}>支付宝支付是否开启: <{/t}></th>
+            <td>
+                <{input type="bool" name='agent_alipay' value=$agent_alipay }>
+                <label class="help"><span class="notice-inline" ><{t}>默认为是<{/t}></span></label>
+            </td>
+        </tr>
+        <tr>
+        <th><{t}>银联支付是否开启: <{/t}></th>
+        <td>
+            <{input type="bool" name='agent_unionpay' value=$agent_unionpay id="bool"}>
+                <span class="notice-inline"><{t}>默认为是<{/t}></span>
+        </td>
+      </tr>
+     
+      <!-- <tr>
+        <th><{t}>积分改变是否开启短信通知：<{/t}></th>
+        <td>
+            <{input type="bool" name='agent_arrival' value=$agent_arrival id="booll"}>
+                <span class="notice-inline">
+            <{t}>默认为是<{/t}></span>
+        </td>
+      </tr> -->
+    </tbody>
+  </table>
+  <div class="table-action">
+    <{button type="submit"  label=$___desktop="保存"|t:'site'}>
+  </div>
+</form>
+<!--
+<script type="text/javascript">
+function check_all(o) {
+  o.getParent().getNext('span').getElements('input[type=checkbox]').set('checked', o.checked);
+}
+</script>
+-->

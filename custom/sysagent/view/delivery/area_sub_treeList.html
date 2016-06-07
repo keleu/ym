@@ -1,0 +1,36 @@
+<table cellspacing="0" cellpadding="0" style="width:100%">
+  <col class="Colauto"></col>
+  <!--col class="Coloption_1b"></col-->
+  <col class="Coloption_1b" ></col>
+  <col class="Coloption_1b"></col>
+  <col class="Coloption_1b"></col>
+  <col></col>
+  <tbody>
+    <{foreach from=$childData item=item key=id name="item"}>
+    <{if $item.disabled}><{continue}><{/if}>
+    <tr parentid="<{$id}>" class="provice-bg">
+      <td style="text-align:left; width:320px;" nowrap>
+        <div style="padding-left:<{$step*25}>px">
+          <{if $item.is_child}>
+            <{if $item.is_agent}>
+              <span class="imgTree" onclick="clickTreeSon(this);" id="<{$id}>" level="<{$level}>" > &nbsp;&nbsp; </span>
+            <{else}>
+             <{if $level==2}>
+              <span class="imgTree" onclick="clickTree(this);" id="<{$id}>" level="<{$level}>" > &nbsp;&nbsp; </span>
+             <{elseif $level==3}>
+              <span class="imgTree" onclick="clickTreeSec(this);" id="<{$id}>" level="<{$level}>" > &nbsp;&nbsp; </span>
+             <{else}>
+              <span class="imgTree" onclick="clickTreeThird(this);" id="<{$id}>" level="<{$level}>" > &nbsp;&nbsp; </span>
+            <{/if}>
+            <{/if}>
+          <{else}>
+          <span class="imgTree tree_open" id="<{$id}>" level="<{$level}>"> &nbsp;&nbsp; </span>
+          <{/if}>
+          <span ><{$item.value}></span>
+        </div>
+      </td>
+      <td style="width:10px;" ><{$item.point}></td>
+    </tr>
+    <{/foreach}>
+  </tbody>
+</table>

@@ -1,0 +1,75 @@
+<form class="tableform" method='post' action='?app=sysagent&ctl=admin_apply&act=docancel' id="doenter-form">
+<input type='hidden' name='audit_id' value='<{$audit_id}>'>
+<input type='hidden' name='agent_id' value='<{$agent_id}>'>
+<input type='hidden' name='enterapply_id' value='<{$agent.enterapply_id}>'>
+<input type='hidden' name='apply_status' value='<{$agent.apply_status}>'>
+<input type='hidden' name='status' value='<{$agent.status}>'>
+<div class="division">
+<table width="100%">
+  <tr>
+    <th><{t}>代理商账号：<{/t}></th>
+    <td><{$agent.username}></td>
+    <th><{t}>申请日期：<{/t}></th>
+    <td><{$time|cdate:'SDATE_STIME'}></td>
+      </tr>
+    <tr>
+        <th><{t}>停用原因：<{/t}></th>
+        <td colspan="3"><textarea name="reason"  cols="20" style="width:82%" rows="10"><{$reason}></textarea></td>
+    </tr>
+    </table>
+
+    <div class="division">
+<div class="notice"><{t}>正在重新分配上级代理商。<{/t}>
+<br/><{t}>提示：1、此处的子代理商只能分配给同一地区的一级代理商。<{/t}><br/>
+2、二级及以下代理商停用时，请直接点击确定，其子代理自动分配给上一级代理商。<br/>
+3、如果有地区没有其他一级代理商，请先添加或者分批操作。
+</div>
+<div class="division">
+    <table border="0" cellspacing="0" cellpadding="0" class="gridlist sepc_value_table <{$propInfo.show_type|default:'text'}>-prop-value-table">
+      <thead>
+        <tr>
+          <th><{t}>子代理商<{/t}></th>
+          <th><{t}>原上级代理商<{/t}></th>
+          <th><{t}>分配新上级代理商<{/t}></th>
+        </tr>
+      </thead>
+      <input type="hidden" name="operation_type" value="<{$type}>">
+      <tbody>
+        <{foreach from=$agentInfo item=items key=key}>
+        <{if $items.showrow == 1}>
+        <tr>
+          <{foreach from=$items.son_agent item=itemson key=k}>
+          <td style="vertical-align:middle; text-align:center"><input type="hidden" name="sonagent_id[<{$key}>]" value="<{$k}>"><input type="text" name="sonagent[<{$key}>]" style='width:120px;' value="<{$itemson}>" readonly = 'true'></td>
+          <{/foreach}>
+          <{foreach from=$items.del_agent item=itemson key=k}>
+          <td style="vertical-align:middle; text-align:center"><input type="hidden" name="delagent_id[<{$key}>]" value="<{$k}>"><input type="text" name="delagent[<{$key}>]" style='width:120px;' value="<{$itemson}>" readonly = 'true'></td>
+          <{/foreach}>
+          <td style="vertical-align:middle; text-align:center"><{input type="select" name="newagent_id[$key]" vtype="required" style='width:180px;' options=$items.new_agent value=$items.new_agent.value}></td>
+        </tr>
+        <{/if}>
+        <{if $items.showrow != 1}>
+          <{foreach from=$items.del_agent item=itemson key=k}>
+            <input type="hidden" name="delagent_id[<{$key}>]" value="<{$k}>">
+          <{/foreach}>
+        <{/if}>
+        <{/foreach}>
+      </tbody>
+    </table>
+  </div>
+</div>
+</form>
+
+<{area inject='.mainFoot'}>
+<div class="table-action">
+	<{button label=$___b2c="提交"|t:'b2c' id="doenter-form-submit" class="agent-action" type="button"}>
+</div>
+<{/area}>
+
+<script>
+
+$('doenter-form-submit').addEvent('click',function(){
+    var _form=$('doenter-form');
+    $('doenter-form').fireEvent('submit',{stop:$empty});
+    _form.getParent('.dialog').retrieve('instance').close();
+});
+</script>

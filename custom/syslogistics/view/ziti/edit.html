@@ -1,0 +1,209 @@
+<form method="post" action="?app=syslogistics&ctl=admin_ziti&act=save" class="tableform" id="ziti_add_form">
+  <input type='hidden' name='id' value='<{$data.id}>'/>
+  <div >
+    <div class="division" style="float: left;width: 460px;">
+    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th class="title"><{t}>自提点名称:<{/t}></th>
+        <td>
+          <input type='text' name="name" vtype=required maxlength="20" value='<{$data.name}>'/>
+        </td>
+      </tr>
+      <tr>
+        <th class="title"><{t}>选择地区:<{/t}></th>
+        <td>
+          <span class="region" id="area" vtype=required>
+            <input type="hidden" name="area_id" value="<{$data.area}>">
+            <{if $selectArea}>
+            <{foreach from=$selectArea item=item key=key}>
+            <select class="x-select">
+              <option value="_NULL_">请选择</option>
+              <{foreach from=$item item=row}>
+              <option value="<{$row}>" <{if $row == $key}>selected<{/if}>><{$areaData.$row.value}></option>
+              <{/foreach}>
+            </select>
+            <{/foreach}>
+            <{else}>
+            <select class="x-select">
+              <option value="_NULL_">请选择</option>
+              <{foreach from=$areaLv1 item=item}>
+              <option value="<{$item}>"><{$areaData.$item.value}></option>
+              <{/foreach}>
+            </select>
+            <{/if}>
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <th class="title"><{t}>详细地址:<{/t}></th>
+        <td>
+          <input type='text' name="addr" id="addr" vtype=required maxlength="50" value='<{$data.addr}>'/>
+          <{button label=$___syslogistics="地图定位"|t:'syslogistics' type="button" onclick='locate()'}>
+        </td>
+      </tr>
+      <tr>
+        <th class="title"><{t}>经纬度:<{/t}></th>
+        <td>
+          <label class="control-label">
+            <input type="text" id="longitude" class="coordinate" name='longitude' value="<{$data.longitude}>" size=8>&nbsp;&nbsp;
+            <input id="latitude" type="text" name='latitude' class="coordinate" value="<{$data.latitude}>" size=8> <span>右方地图小幅调整经纬度</span>
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <th class="title"><{t}>联系方式:<{/t}></th>
+        <td>
+          <input type='text' name="tel" vtype=required maxlength="50" value='<{$data.tel}>'/><span class="notice">手机或电话号码</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th class="title"><{t}>自提点照片:<{/t}></th>
+        <td>
+        <{input type="image" name="ziti_image" width=60 height=60 value=$data.ziti_image}>
+        </td>
+      </tr>
+      <tr>
+        <th class="title"><{t}>自提点介绍:<{/t}></th>
+        <td>
+          <textarea name="memo" cols="50" rows="3"><{$data.memo}></textarea>
+        </td>
+      </tr>
+      <tr>
+        <th class="title"><{t}>自营店铺:<{/t}></th>
+        <td>
+            <select name="shop_ids[]" class="form-control" multiple="multiple">
+                <{foreach from=$shop_ids item=shopId key=key}>
+                <option  value="<{$shopId.shop_id}>" <{if $shopId.show}>selected="selected"<{/if}>><{$shopId.shop_name}> </option>
+                <{/foreach}>
+            </select> 选择自营店铺对该店铺生效
+        </td>
+      </tr>
+    </table>
+    </div>
+    <div class="division" style="float: right;width: 480px;height: 460px;">
+      <div id="container_map"></div>
+    </div>
+  </div>
+  <div class="table-action">
+    <{button label=$___syslogistics="保存"|t:'syslogistics' type="submit"}>
+    <{button label=$___syslogistics="取消"|t:'syslogistics' isCloseDialogBtn="true"}>
+  </div>
+</form>
+<style type="text/css">
+  .title{
+    width: 80px !important;
+  }
+  #container_map{
+  width: 100%;
+  height:100%}
+#container_map img{max-width: none!important  }
+.coordinate{
+  width: 80px;
+  margin-right: 8px;
+}
+.form-act select {
+    margin-right: 10px;
+    border-color: darkgray;
+    height: 25px;
+    vertical-align: middle;
+    margin-top: 3px;
+}
+#area{
+  vertical-align: middle;
+}
+</style>
+
+
+<script>
+$('ziti_add_form').store('target',{
+  onComplete:function(rs){
+    if(!rs) return;
+    rs = JSON.decode(rs);
+    if(rs.success){
+      if(window.finderGroup) window.finderGroup['<{$env.get.finder_id}>'].refresh();
+      if($('ziti_add_form').getParent('.dialog')){
+        var Dlg = $('ziti_add_form').getParent('.dialog').retrieve('instance');
+        if(Dlg.update){
+          Dlg.update.retrieve('instance').initContent();
+        }
+        Dlg.close();
+      }
+    }
+  }
+});
+
+(function() {
+  var path ='<{$env.statics_host_url}>/ectools/statics/scripts/';
+
+  var container = $('area');
+  var areaData = '<{$areaData|json_encode}>';
+  var areaPath = '<{$areaPath|json_encode}>';
+
+  // var validate_area;
+  var loadRegion = function(region){
+    region.init(container, areaData, areaPath);
+  };
+
+  Ex_Loader(path + 'region.js', function(){loadRegion(region_sel);});
+
+})();
+
+</script>
+
+<script type="text/javascript">
+  //地图处理
+  var map = new BMap.Map("container_map");          // 创建地图实例
+  var longitude = document.getElementById('longitude').value;
+  var latitude = document.getElementById('latitude').value;
+  longitude = longitude?longitude:'119.975'
+  latitude = latitude?latitude:'31.687'
+  var point = new BMap.Point(longitude, latitude);  // 创建点坐标
+  map.centerAndZoom(point, 15);                 // 初始化地图，设置中心点坐标和地图级别
+  map.enableScrollWheelZoom(true);//启用地图滚轮放大缩小
+  var markerTmp = new BMap.Marker(point);        // 创建标注
+  map.addOverlay(markerTmp);                     // 将标注添加到地图中
+  map.addEventListener("click", function(e){
+    //根据坐标获取地址并填充的功能暂不支持，todo...
+    document.getElementById('longitude').value = e.point.lng;
+    document.getElementById('latitude').value = e.point.lat;
+    map.removeOverlay(markerTmp);
+    var point = new BMap.Point(e.point.lng, e.point.lat);
+    var marker = new BMap.Marker(point);        // 创建标注
+    markerTmp = marker;
+    map.addOverlay(marker);                     // 将标注添加到地图中
+  });
+
+  //定位按钮的事件
+  function locate(){
+    var area = $$("input[name='area_id']").get('value');
+    var addr = $("addr").get('value');
+    // debugger;
+    if(area == ''){
+      return;
+    }
+    else{
+      var ajax_map = new Request({
+        method: "post",
+        url: "?app=syslogistics&ctl=admin_ziti&act=getarea",
+        data: 'data='+JSON.encode({'area':area,'addr':addr}),
+        onSuccess: function(keyObj){
+          var ds = JSON.decode(keyObj);
+          var myGeo = new BMap.Geocoder();
+          myGeo.getPoint(ds.address, function(point){
+            if (point) {
+              document.getElementById('longitude').value = point.lng;
+              document.getElementById('latitude').value = point.lat;
+              map.removeOverlay(markerTmp);
+              map.centerAndZoom(point, 15);
+              markerTmp = new BMap.Marker(point);
+              map.addOverlay(markerTmp);
+            }
+          }, ds.first);
+        }
+      }).send();
+    }
+  }
+</script>
+
+

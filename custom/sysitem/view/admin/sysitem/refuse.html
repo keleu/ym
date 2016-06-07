@@ -1,0 +1,41 @@
+<form class="tableform" method='post' action='?app=sysitem&ctl=admin_check&act=donoallow' id="doenter-form">
+<input type='hidden' name='item_id' value='<{$item_id}>'>
+<input type='hidden' name='approve_status' value='<{$item.approve_status}>'>
+<input type='hidden' name='check_res' value='<{$item.check_res}>'>
+<input type='hidden' name='is_Adjusted' value='<{$item.is_Adjusted}>'>
+<div class="division">
+<table width="100%">
+  <tr>
+    <th><{t}>商品名：<{/t}></th>
+    <td><{$item.title}></td>
+    <th><{t}>积分兑换：<{/t}></th>
+    <td><{$item.integral|pot}></td><!-- 2016.5.4 by yangjie 添加|pot显示单位 -->
+    <!-- <th><{t}>审核日期：<{/t}></th>
+    <td><{$item.regtime|cdate:'SDATE_STIME'}></td> -->
+  </tr>
+   <tr>
+    <th><{t}>混合价: <{/t}></th>
+    <td><{$item.blend}></td>
+    <th><{t}>销售价：<{/t}></th>
+    <td><{$item.price|cur}></td><!-- 2016.5.4 by yangjie 添加|cur显示单位 -->
+  </tr>
+    <tr>
+        <th><{t}>备注：<{/t}></th>
+        <td colspan="3"><textarea name="comment"  cols="20" style="width:80%" rows="4"></textarea></td>
+    </tr>
+    </table>
+</div>
+</form>
+
+<{area inject='.mainFoot'}>
+<div class="table-action">
+    <{button label=$___b2c="提交"|t:'b2c' id="doenter-form-submit" class="items-action" type="button"}>
+</div>
+<{/area}>
+
+<script>
+
+$('doenter-form-submit').addEvent('click',function(){
+     $('doenter-form').fireEvent('submit',{stop:$empty})
+});
+</script>

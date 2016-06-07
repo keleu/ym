@@ -1,0 +1,7 @@
+<cronentries>
+    <cron id="yytapi_task_agentPayOrder">
+        <description>代理商支付获取支付状态</description>
+        <schedule> 5 * * * *</schedule>
+        <enabled>true</enabled>
+    </cron>
+</cronentries>

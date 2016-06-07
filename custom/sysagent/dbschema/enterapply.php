@@ -1,0 +1,85 @@
+<?php
+return  array(
+    'columns'=>array(
+        'enterapply_id'=>array(
+            'type'=>'number',
+            //'pkey' => true,
+            'autoincrement' => true,
+            'required' => true,
+            'order' => 1,
+            'label' => app::get('sysagent')->_('代理申请 id'),
+            'comment' => app::get('sysagent')->_('代理申请id 自增'),
+        ),
+        'apply_status'=>array(
+            'type'=>array(
+                'active'=>'未审核',
+                'successful'=>'审核通过',
+                'failing'=>'审核驳回',
+                'lock'=>'停用',
+            ),
+            'required'=>true,
+            'in_list'=>true,
+            'default'=>'active',
+            'default_in_list'=>true,
+            'label' => app::get('sysagent')->_('申请状态'),
+            'comment' => app::get('sysagent')->_('申请状态'),
+            'order' => 5,
+        ),
+        'agent_id'=>array(
+            'type'=>'table:account@sysagent',
+            'required'=>true,
+            'in_list'=>true,
+            'default_in_list'=>true,
+            'label' => app::get('sysagent')->_('代理商账号'),
+            'comment' => app::get('sysagent')->_('提交申请的账号'),
+            'order' => 6,
+        ),
+        'add_time' => array(
+            'type'=>'time',
+            'in_list'=>true,
+            'default_in_list'=>true,
+            'label' => app::get('sysagent')->_('修改时间'),
+            'comment' => app::get('sysagent')->_('修改时间'),
+            'order' => 13,
+
+        ),
+        'refuse_time' => array(
+            'type'=>'time',
+            'in_list'=>true,
+            'default_in_list'=>true,
+            'label' => app::get('sysagent')->_('拒绝时间'),
+            'comment' => app::get('sysagent')->_('拒绝时间'),
+            'order' => 13,
+
+        ),
+        'agree_time' => array(
+            'type'=>'time',
+            'in_list'=>true,
+            'default_in_list'=>true,
+            'label' => app::get('sysagent')->_('同意时间'),
+            'comment' => app::get('sysagent')->_('同意时间'),
+            'order' => 13,
+        ),
+        'enterlog' => array(
+            //'type' => 'longtext',
+            'type' => 'text',
+            'comment' => app::get('sysagent')->_('操作日志'),
+        ),
+        'reason'=>array(
+            //'type'=>'varchar(500)',
+            'type' => 'string',
+            'length' => 500,
+            'in_list'=>true,
+            'default_in_list'=>true,
+            'label' => app::get('sysagent')->_('不通过原因'),
+            'comment' => app::get('sysagent')->_('审核不通过原因'),
+            'order' => 12,
+        ),
+    ),
+    'primary' => 'enterapply_id',
+    'index' => array(
+        'ind_agent_id' => ['columns' => ['agent_id']],
+        'ind_apply_status' => ['columns' => ['apply_status']],
+    ),
+    'comment' => app::get('sysagent')->_('代理商申请表'),
+);

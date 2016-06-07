@@ -1,0 +1,507 @@
+<div class="order">
+  <!--- 头部内容显示-->
+  <header>
+    <div class="list-hd">
+      <div class="backto icon-back ">
+        <input type="button" name="returnBcak" onclick="history.back()">
+      </div>
+      <div class="tit">订单结算</div>
+      <div class="menu">
+      </div>
+    </div>
+  </header>
+  <div class="main">
+    <form action="<{url action=topm_ctl_trade@create}>" method="post" id="form_settle">
+      <input type="hidden" name="checkout" value="1">
+      <input type="hidden" name="mode" value="<{$mode}>">
+      <input type="hidden" name="md5_cart_info" value="<{$md5_cart_info}>">
+      <div class="address-info info-area">
+        <div class="address">
+          <{if $def_addr}>
+          <a href="<{url action=topm_ctl_cart@getAddrList mode=$mode selected=$def_addr.addr_id}>">
+            <input type="hidden" name="addr_id" value="<{$def_addr.addr_id}>">
+            <div class="info-l info">
+              <span class="icon icon-place"></span>
+            </div>
+            <div class="info-m">
+              <table>
+                <tr>
+                  <td class="tit">收货人：</td>
+                  <td class="con"><{$def_addr.name}> &nbsp;&nbsp;<{$def_addr.mobile}></td>
+                </tr>
+                <tr>
+                  <td class="tit">收货地址：</td>
+                  <td class="con"><{$def_addr.area|region}>&nbsp;<{$def_addr.addr}></td>
+                </tr>
+              </table>
+            </div>
+            <div class="info-r info">
+              <span class="icon icon-forward"></span>
+            </div>
+          </a>
+          <{elseif $nowcount <= 0}>
+          <a href="<{url action=topm_ctl_cart@editAddr mode=$mode}>">
+            <div class="info-l info">
+              <span class="icon icon-place"></span>
+            </div>
+            <div class="info-m">
+              收货地址为空，请去 添加新地址
+            </div>
+            <div class="info-r info">
+              <span class="icon icon-forward"></span>
+            </div>
+          </a>
+          <{else}>
+          <a href="<{url action=topm_ctl_cart@getAddrList mode=$mode}>">
+            <div class="info-l info">
+              <span class="icon icon-place"></span>
+            </div>
+            <div class="info-m">
+              没有默认的收货地址，请去 选择收货地址
+            </div>
+            <div class="info-r info">
+              <span class="icon icon-forward"></span>
+            </div>
+          </a>
+          <{/if}>
+        </div>
+      </div>
+      <div class="address-info info-area">
+        <div class="address">
+          <a href="<{url action=topm_ctl_cart@getPayTypeList mode=$mode addr_id=$def_addr.addr_id selected=$payType.pay_type s=$isSelfShop isoffline=$ifOpenOffline}>"><!-- 2016.4.19 by yangjie 当有积分的时候不显示货到付款，传一个isoffline值 -->
+            <input type="hidden" name="payment_type" value="<{$payType.pay_type}>">
+            <div class="info-l info">
+              <span class="icon icon-point"></span>
+            </div>
+            <div class="info-m">
+              支付方式：<span> <{if $payType}> <{$payType.name}> <{else}>请选择支付方式 <{/if}></span>
+            </div>
+            <div class="info-r info">
+              <span class="icon icon-forward"></span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="select-store">
+      <{foreach from=$cartInfo.resultCartData key=shop_id item=cart}>
+        <div class="store-n">
+          <span><{$cart.shop_name}></span>
+        </div>
+        <{foreach from=$cart.cartByPromotion item=itemPromotion key=key}>
+        <{if $key!='0'}>
+        <div class="cart-promotion cart-promotion-list">
+          <{if $mode=='fastbuy'}>
+          <section>
+            <div class="promotion-info">
+              <mark>如需参加该商品的促销活动</mark>
+            </div>
+            <div class="get-promotion">
+              <a href="<{url action=topm_ctl_cart@index}>">去购物车</a> <i class="icon icon-forward"></i>
+            </div>
+          </section>
+          <{/if}>
+          <section>
+            <div class="promotion-info">
+              <{if $cart.basicPromotionListInfo[$key].promotion_tag }>
+                <button type="button" class="ui-btn ui-btn-negative"><{$cart.basicPromotionListInfo[$key].promotion_tag}></button>
+              <{/if}>
+              <{$cart.basicPromotionListInfo[$key].promotion_name}>
+              <{if $cart.basicPromotionListInfo[$key].promotion_type=='fullminus' || $cart.basicPromotionListInfo[$key].promotion_type=='fulldiscount'}>
+                已优惠:<{$itemPromotion.discount_price}>
+              <{/if}>
+            </div>
+          </section>
+        </div>
+        <{/if}>
+        <div class="store-g">
+          <ul  <{if $key!='0'}>class="discount-area"<{/if}>>
+            <{foreach from=$cart.object item=goods name=checkoutItemList}>
+            <{assign var=checkoutItemCount value=$cartInfo.resultCartData|count}>
+            <{if in_array($goods.cart_id,$itemPromotion.cart_ids)}>
+            <li>
+              <div class="g-info">
+                <div class="info-l">
+                  <a href="<{url action=topm_ctl_item@index item_id=$goods.item_id}>" class="g-pic">
+                    <img src="<{$goods.image_default_id|storager:t}>" alt=""></a>
+                </div>
+                <div class="info-m">
+                  <{if $goods.activityDetail}><span class="ui-badge-danger">[<{$goods.activityDetail.activity_info.activity_tag}>]</span><{/if}>
+                  <a href="<{url action=topm_ctl_item@index item_id=$goods.item_id}>" class="g-name"><{$goods.title}></a><div style="color:#9C9C9C;font-size:80%;margin-top:5px;margin-bottom:0"><{$goods.spec_info}></div>
+                </div>
+                <div class="info-r">
+                  <div class="g-price">
+                    <span class="after"><{$goods.price.blend}></span>
+                    <br>
+                    <span class="num">
+                      x <i class="n"><{$goods.quantity}></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <{/if}>
+            <{/foreach}>
+          </ul>
+        </div>
+        <{/foreach}>
+        <div class="sale-del">
+          <!--
+          <div class="store-sale fold">
+            <span class="l">店铺优惠</span>
+            <div class="r sale-menu">
+              <span class="ui-btn-warning ui-btn-outlined">
+                <span>满100元减10元</span>
+                <i class="icon icon-down"></i>
+              </span>
+              <div class="dropmenu">
+                <ul>
+                  <li>满100减1元</li>
+                  <li>满100减0元</li>
+                  <li>满100减10元</li>
+                  <li>满100减20元</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          -->
+          <div class="delivery fold">
+            <div class="l">优惠券</div>
+            <div class="r select">
+              <select name="coupon_use[<{$shop_id}>][coupon_code]" data-shopid="<{$shop_id}>" class="action-select-coupon">
+                <{foreach from=$cart.couponList key=key item=couponItem}>
+                <option value="<{$couponItem.coupon_code}>"><{$couponItem.coupon_name}></option>
+                <{/foreach}>
+              </select>
+            </div>
+          </div>
+          <div class="delivery fold">
+            <div class="l">配送方式</div>
+            <div class="r select">
+              <select name="shipping[<{$shop_id}>][template_id]" id="" class="action-select-shipping">
+                <{foreach from=$dtyList[$shop_id] key=key item=dtyItem}>
+                <option value="<{$dtyItem.template_id}>"><{$dtyItem.name}></option>
+                <{/foreach}>
+              </select>
+            </div>
+          </div>
+          <{if $zitiDataList[$shop_id]}>
+          <div class="delivery fold ziti-info" style="display: none;">
+            <span class="icon">自提地点&nbsp;&nbsp;&nbsp;</span>
+            <div class="r">
+              <select id="select-ziti-id" name="ziti[<{$shop_id}>][ziti_addr]">
+              <{foreach from=$zitiDataList[$shop_id] item=item key=key}>
+              <option value="<{$item.id}>"><{$item.name}></option>
+              <{/foreach}>
+              </select>
+            </div>
+            <button type="button" class="ui-btn-warning" onclick="mapto(<{$item.id}>)">地图</button>
+          </div>
+          <{/if}>
+
+          <div class="words">
+            <input type="text" name="mark[<{$shop_id}>]" maxlength="85" placeholder="买家留言，85个字以内">
+          </div>
+          <div class="charges">
+            <table>
+              <tr>
+                <td class="t">商品金额:</td>
+                <td class="c warm" id="op_items_<{$shop_id}>"><{0|cur}></td>
+              </tr>
+              <tr>
+                <td class="t">总重:</td>
+                <td class="c warm" id="op_weight_<{$shop_id}>"><{0}></td>
+              </tr>
+              <tr>
+                <td class="t">运费:</td>
+                <td class="c warm" id="op_shipping_<{$shop_id}>"><{0|cur}></td>
+              </tr>
+              <tr>
+                <td class="t">减免:</td>
+                <td class="c warm" id="op_discount_<{$shop_id}>"><{0|cur}></td>
+              </tr>
+              <tr class="total-c">
+                <td class="t">总计:</td>
+                <td class="c warm" id="op_total_<{$shop_id}>"><{$goods.price.total_blend}></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <{/foreach}>
+      </div>
+      <div class="total-price">
+        <div class="price">
+          <span>
+            合计
+            <i class="tp" id="op_amount">0</i>
+          </span>
+        </div>
+        <div class="confirm">
+          <button type="submit" class="ui-btn-warning" id="confirm_submit">结算</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!--返回顶部-->
+  <div id="gotop"></div>
+
+</div>
+<div class="buy-panel bangding">
+  <div class="in-panel">
+    <div class="close-btn-wrap">
+      <span class="close-btn"><i class="icon icon-close"></i></span>
+    </div>
+    <ul class="ui-table-view ui-table-lg ui-table-single">
+        <div class="get-promotion">
+          <a href="member-security.html" style="font-size:15px;">需绑定手机后才能下单
+              <span class="icon icon-forward" style="font-size:13px;"></span>
+          </a>
+        </div>
+    </ul>
+  </div>
+</div>
+<div class="buy-panel eqinfo_mobile" id='eqinfo_mobile_div' style="background: none !important;background-image: linear-gradient(rgba(0, 0, 0, .3) 0, rgba(0, 0, 0, .3) 100%) !important;">
+<div class='eqinfo_tip' style="top:200px;position:relative;margin:0 auto;z-index:9999;background-color:#fff;width:200px;height:80px;min-width:200px;line-height:30px;text-align:center;border-radius:6px;padding-top:10px;box-shadow: 1px 1px 70px rgba(0,0,0,.8);" ><span><a href="<{url action=topm_ctl_member@security next_checkout=$next_checkout}>" style="font-size:15px;">需绑定手机后才能下单</a></span><br><span style='color:#ea6928;font-size:2em;' class='timeTo0'>5</span></div>
+</div>
+<!-- 地图使用 -->
+<div class="buy-panel BMap_div" id="BMap_div">
+  <div class="map_close"><i class="icon-close close_map"></i></div>
+  <div id='eqinfo_BMap'>
+    <div class='bmap_div' id="bmap_div"></div>
+  </div>
+  <div class="map_content">
+    <div class="map_title"></div>
+    <div class="map_addr"></div>
+    <div class="map_memo"></div>
+    <div class="map_img"></div>
+
+  </div>
+</div>
+<style type="text/css">
+.BMap_div{
+  background:#fff !important;
+  overflow-y:scroll;
+  overflow-x:hidden;
+}
+#eqinfo_BMap{
+  top: 0px;
+  position:relative;
+  margin:0 auto;
+  z-index:9999;
+  background-color:#fff !important;
+  background:#fff !important;
+  width:100%;
+  height:400px;
+  min-width:200px;
+}
+.BMap_div .map_close{
+  position: fixed;
+  float: right;
+  right: 0px;
+  top: 0px;
+  color: #fff;
+  background: rgba(0, 0, 0, .6);
+  width: 3em;
+  height: 3em;
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 50%;
+  z-index: 100000;
+}
+.map_content,.map_title,.map_addr,.map_memo,.map_img{
+  width: 100%;
+  line-height: 200%;
+}
+.BMap_div .map_close:hover{
+  color: #efefef;
+}
+#bmap_div{
+  width: 100%;
+  height:100%;
+}
+#bmap_div img{max-width: none!important  }
+</style>
+<!-- 百度地图js -->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=XcNQnDv4UhAffDKc3DpbhjF9"></script>
+<script>
+  var init_time = 4;
+  var eqinfo_time = null;
+  $(function(){
+    //等待页面加载完成
+    setInterval(resize_tip,10);
+    $(window).bind('resize',function(){
+      resize_tip();
+    });
+
+    //是否绑定
+    var moblie='<{$mobile}>';
+    if(!moblie){
+      $('.eqinfo_mobile').addClass('visible');
+      eqinfo_time = setInterval(eqinfo_fun,1000);
+    }
+  });
+
+  function timetip(){
+    resize_tip();
+  }
+  function resize_tip(){
+    var clientHeight = document.getElementById('eqinfo_mobile_div').offsetHeight;
+    $('.eqinfo_tip').css({'top':(clientHeight/2-50)+'px'});
+  }
+  function eqinfo_fun(){
+      $('.timeTo0').text(init_time);
+
+      if(init_time == 0){
+        clearTimeout(eqinfo_time);
+        window.location.href="member-security.html";//加入跳转，解决当倒计时为0时页面不跳转的问题 处理人：杨杰 时间：2016.3.29
+      }else{
+        clearInterval(eqinfo_fun,1000);
+      }
+      init_time--;
+  }
+  $('.button').button();
+  $('.g-standard').click(
+    function(){
+      $('.standard-info').toggleClass('cur');
+    }
+  );
+  //规格显示隐藏
+  $('.icon-close').click(function(){$('.buy-panel').removeClass('visible');});
+
+$('#confirm_submit').click(function(){
+  var isMob=0;
+  $.ajax({
+      url: '<{url action=topm_ctl_cart@isMobile}>',
+      type: 'post',
+      dataType: 'json',
+      async : false, //默认为true 异步
+      data: {
+      },
+      success: function(res) {
+          if(!res.succ){
+            isMob=1;
+          }
+      }
+  });
+  if(isMob){
+    if(!$('.bangding').hasClass('visible')){
+        $('.bangding').addClass('visible');
+        return false;
+      }
+  }
+});
+  var Message = new gmu.Message();
+
+  function total(){
+    var form = $('#form_settle');
+    $.post('<{url action=topm_ctl_cart@total}>', form.serialize(), function(rs) {
+
+      rs.shop && $.each(rs.shop, function(k, v) {
+        $('#op_items_' + k).text(v.total_blend);
+        $('#op_shipping_' + k).text('￥'+(v.post_fee||0));
+        $('#op_total_' + k).text(v.payment_blend);
+        $('#op_discount_' + k).text('-'+'￥'+(v.discount_fee));
+        $('#op_weight_' + k).text(v.totalWeight+'kg');
+      });
+      // $('#op_amount').text(Currency.formatPoint(rs.allPayment));
+      $('#op_amount').text(rs.allPaymentBlend);
+    });
+  }
+
+  $('.action-select-shipping').on('change', function(e) {
+    if($(this).val()==0){
+      $(this).parents('.sale-del').find('.ziti-info').show();
+      //自提没有快递费 这样做比较简单
+      total();
+    }else{
+      $(this).parents('.sale-del').find('.ziti-info').hide();
+      total();
+    }
+  }).eq(0).change();
+
+  $('.action-select-coupon').change(function(e) {
+    var that = $(this);
+
+    var fastbuyMode = '<{$mode}>';
+    var couponCode = $(this).val();
+    var shopId = $(this).attr('data-shopid');
+    var data = 'mode='+fastbuyMode+'&shop_id='+ shopId +'&coupon_code='+ couponCode;
+    if(couponCode!='-1') {
+      $.post('<{url action=topm_ctl_cart@useCoupon}>',data,function(rs){
+        if(rs.error==true){
+          that.val('-1');
+          Message.error(rs.message);
+          return;
+        }else{
+          total();
+        }
+      });
+    }else{
+      // 赋值优惠券号码为空
+      $.post('<{url action=topm_ctl_cart@cancelCoupon}>',data,function(rs){
+        if(rs.success) {
+          total();
+        }
+        if(rs.error) {
+          Message.error(rs.message);
+          return;
+        }
+      });
+    }
+  });
+
+  //查看地图的脚本
+  function mapto(zitiId){
+    if(!zitiId > 0){
+      return;
+    }
+
+    //设置地图需要展示的高度
+    var clientHeight = document.getElementById('BMap_div').offsetHeight;
+    // alert(clientHeight);
+    $('#eqinfo_BMap').css({'height':(clientHeight-50)+'px'});
+
+    //打开地图的层展示
+    $('.BMap_div').addClass('visible');
+
+    //获取关于地图和自提点的信息
+    //获取对应的自提点信息，查看地图
+    var url = "<{url action=topm_ctl_cart@consultMap}>";
+    // debugger;
+    $.getJSON(url,{'ziti_id':zitiId},function(data){
+      if(!data.area_id){
+        $('.bmap_div').html('该自提点可能已经取消，不支持查看！');
+      }else{
+        //设置其他信息
+        if(data.ziti_image){
+          $('.map_img').html('<img src="'+data.ziti_image+'" class="map_image" width="100%">');
+        }
+        $('.map_title').html('自提点：'+data.name+'('+data.tel+')');
+        $('.map_addr').html('地址：'+data.area+data.addr);
+        $('.map_memo').html('介绍：'+data.memo);
+        //开始设置地图
+        var map = new BMap.Map("bmap_div");               // 创建地图实例
+        var longitude = data.longitude;
+        var latitude = data.latitude;
+
+        longitude = longitude?longitude:'119.975'
+        latitude = latitude?latitude:'31.687'
+
+        var point = new BMap.Point(longitude, latitude);  // 创建点坐标
+        map.centerAndZoom(point, 15);                     // 初始化地图，设置中心点坐标和地图级别
+        map.enableScrollWheelZoom();                      //启用地图滚轮放大缩小
+        var markerTmp = new BMap.Marker(point);           // 创建标注
+        map.addOverlay(markerTmp);                        // 将标注添加到地图中
+      }
+    });
+  }
+  //关闭按钮后清空地图信息
+  $('.close_map').click(function(){
+    $('#bmap_div').html('');
+    $('.map_img').html('');
+    $('.map_title').html('');
+    $('.map_addr').html('');
+    $('.map_memo').html('');
+  });
+</script>
+

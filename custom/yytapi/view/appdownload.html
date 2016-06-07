@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>欢乐兑</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="keywords" content="欢乐兑 代理商 app APP 积分 积分兑换">
+    <meta name="description" content="欢乐兑 代理商 app APP 积分 积分兑换">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="欢乐兑">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no minimal-ui">
+    <style type="text/css">
+    a{
+      color: '#444';
+      text-decoration: none;
+    }
+    a:hover{
+      color: '#444';
+      text-decoration: none;
+    }
+    a:link{
+      color: '#444';
+      text-decoration: none;
+    }
+    .p{
+     list-style: none;
+     float: left;
+     clear: both;
+     width: 120px;
+     height: 20px;
+     border-radius: 4px;
+     border:1px solid #efefef;
+     margin-top: 10px;
+     padding: 15px 30px 15px 30px;
+     font-size: 18px;
+     font-family: "宋体";
+    }
+    .page{
+      text-align: center;
+      border: 0px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 200px;
+    }
+    </style>
+</head>
+<body>
+<div class="page">
+<img src="http://www.huanledui.cn/images/39/52/09/4911237ca45716521479b0ec567fa508c2a7eb5d.png">
+<br>
+<br>
+<{foreach from=$version item=item}>
+<a href="<{$item['url']}>" class='p'><{$item['ver']}></a>
+<{/foreach}>
+</div>
+</body>
+</html>

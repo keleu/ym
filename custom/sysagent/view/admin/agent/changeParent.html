@@ -1,0 +1,72 @@
+<form action="?app=sysagent&ctl=admin_agent&act=changeParent" method="post" id="form01">
+<textarea name="filter" style="display:none"><{$filter}></textarea>
+<div class="division">
+<div class="notice"><{t}>正在重新分配上级代理商。<{/t}>
+<br/><{t}>提示：1、此处的子代理商只能分配给同一地区的一级代理商。<{/t}><br/>
+2、二级及以下代理商删除时，请直接点击确定，其子代理自动分配给上一级代理商。<br/>
+3、如果有地区没有其他一级代理商，请先添加或者分批操作。
+</div>
+<div class="division">
+    <table border="0" cellspacing="0" cellpadding="0" class="gridlist sepc_value_table <{$propInfo.show_type|default:'text'}>-prop-value-table">
+      <thead>
+        <tr>
+          <th><{t}>子代理商<{/t}></th>
+          <th><{t}>原上级代理商<{/t}></th>
+          <th><{t}>分配新上级代理商<{/t}></th>
+        </tr>
+      </thead>
+      <input type="hidden" name="operation_type" value="<{$type}>">
+      <tbody>
+        <{foreach from=$agentInfo item=items key=key}>
+        <{if $items.showrow == 1}>
+        <tr>
+          <{foreach from=$items.son_agent item=itemson key=k}>
+          <td style="vertical-align:middle; text-align:center"><input type="hidden" name="sonagent_id[<{$key}>]" value="<{$k}>"><input type="text" name="sonagent[<{$key}>]" style='width:120px;' value="<{$itemson}>" readonly = 'true'></td>
+          <{/foreach}>
+          <{foreach from=$items.del_agent item=itemson key=k}>
+          <td style="vertical-align:middle; text-align:center"><input type="hidden" name="delagent_id[<{$key}>]" value="<{$k}>"><input type="text" name="delagent[<{$key}>]" style='width:120px;' value="<{$itemson}>" readonly = 'true'></td>
+          <{/foreach}>
+          <td style="vertical-align:middle; text-align:center"><{input type="select" name="newagent_id[$key]" vtype="required" style='width:180px;' options=$items.new_agent value=$items.new_agent.value}></td>
+        </tr>
+        <{/if}>
+        <{if $items.showrow != 1}>
+          <{foreach from=$items.del_agent item=itemson key=k}>
+            <input type="hidden" name="delagent_id[<{$key}>]" value="<{$k}>">
+          <{/foreach}>
+        <{/if}>
+        <{/foreach}>
+      </tbody>
+    </table>
+  </div>
+
+   <div class="table-action">
+        <{button id='agent-form-submit' label="保存并删除"|t:'sysagent' onclick="submitForm(event,2)"}>
+   </div>
+</form>
+
+<script>
+  var submitForm = function (event,sign){
+    var _form=$('form01');
+    switch (sign){
+      case 1:
+        var target={
+          onComplete:function(){
+                       location.reload();
+                     }};
+        break;
+      case 2:
+        var target={
+          onComplete:function(rs){
+                       if(rs&&!!JSON.decode(rs).success){
+                           window.finderGroup['<{$env.get.finder_id}>'].refresh();
+                           _form.getParent('.dialog').retrieve('instance').close();
+                       }
+                     }};
+        break;
+    }
+    _form.store('target',target);
+    if(confirm('是否确定?')) {
+      _form.fireEvent('submit',new Event(event));
+    }
+  };
+</script>

@@ -1,0 +1,54 @@
+<form class="tableform" method='post' action='?app=sysagent&ctl=admin_agent&act=donoallow' id="doenter-form">
+<input type='hidden' id='agent_id' name='agent_id' value='<{$agent_id}>'>
+<input type='hidden' name='enterapply_id' value='<{$agent.enterapply_id}>'>
+<input type='hidden' name='apply_status' value='<{$agent.apply_status}>'>
+<input type='hidden' id="status" name='status' value='<{$agent.status}>'>
+<div class="division">
+<table width="100%">
+  <tr>
+    <th><{t}>代理商账号：<{/t}></th>
+    <td><{$agent.username}></td>
+    <th><{t}>申请日期：<{/t}></th>
+    <td><{$agent.regtime|cdate:'SDATE_STIME'}></td>
+      </tr>
+    <tr>
+        <th><{t}>备注：<{/t}></th>
+        <td colspan="3"><textarea name="reason"  cols="20" style="width:82%" rows="10"></textarea></td>
+    </tr -->
+    </table>
+</div>
+</form>
+
+<{area inject='.mainFoot'}>
+<div class="table-action">
+	<{button label=$___b2c="提交"|t:'b2c' id="donoenter-form-submit" class="agent-action" type="button"}>
+</div>
+<{/area}>
+
+<script>
+
+$('donoenter-form-submit').addEvent('click',function(){
+    var agent_id = $("agent_id").value;
+    var status = $("status").value;
+    if(status == 1){
+      new Request({
+        method:'post',
+        url:'?app=sysagent&ctl=admin_agent&act=checkAreaById',
+        data:'agent_id=' + agent_id,
+        onSuccess:function(rs){
+          rs = JSON.decode(rs);
+          if(rs.success){
+              $('doenter-form').fireEvent('submit',{stop:$empty});
+          }else{
+            if(confirm(rs.msg)){
+              $('doenter-form').fireEvent('submit',{stop:$empty});
+            }
+          }
+        }
+      }).post();
+    }
+    else{
+      $('doenter-form').fireEvent('submit',{stop:$empty});
+    }
+});
+</script>

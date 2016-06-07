@@ -1,0 +1,1 @@
+<img src="test.php?codebar=BCGcode128&text=211556207861">

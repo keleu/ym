@@ -1,0 +1,19 @@
+<desktop>
+    <permissions>
+        <!--代理商-->
+        <permission id="agent" display='true' parent='0' workground='sysagent.wrokground.agent'>查看代理商列表</permission>
+    </permissions>
+
+    <workground name="代理商管理" id="sysagent.wrokground.agent" app="sysagent" controller="admin_agent" action="index" order='30'>
+        <menugroup name="代理商">
+            <menu controller='admin_agent' action='index' permission='agent' display='true' order='20'>代理商列表</menu>
+            <menu controller='admin_agent' action='index' permission='agent' display='true' order='20'>代理商审核</menu>
+            <menu controller='admin_agent' action='index' permission='agent' display='true' order='20'>代理商发展报表</menu>
+        </menugroup>
+        <menugroup name="代理商配置">
+            <menu controller='admin_agent' action='index' permission='agent' display='true' order='20'>代理商协议配置</menu>
+            <menu controller='admin_agent' action='index' permission='agent' display='true' order='20'>基本参数设置</menu>
+        </menugroup>
+    </workground>
+
+</desktop>

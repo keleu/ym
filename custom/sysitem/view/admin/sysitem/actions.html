@@ -1,0 +1,131 @@
+<div class="action-bar">
+<{if $items.check_res == 'failing'}>
+<div class="items-ctls clearfix" item_id="<{$items.item_id}>">
+<b class="font-red flt"> <{t}>审核被拒绝<{/t}></b>
+</div>
+<{else}>
+    <div class="items-ctls clearfix" item_id="<{$items.item_id}>">
+      <!-- 标准按钮 -->
+      <{if $action_buttons}>
+        <{foreach from=$action_buttons key=key item=item}>
+          <div class="span-auto"><b><{t}>操作：<{/t}></b></div>
+          <{foreach from=$item key=subkey item=subitem}>
+            <div class="<{if $smarty.foreach.payments.last}>span-auto<{else}>flt<{/if}> items-action">
+              <{if $subitem.flow}><input type="hidden" name="flow"><{/if}>
+              <{if $subitem.disable}><input type="hidden" name="disabled"><{/if}>
+              <{button type="button"
+                 label=$subitem.label
+                 app=$subitem.app
+                 confirm=$subitem.confirm
+                 act=$subitem.act
+              }>&nbsp;
+            </div>
+          <{/foreach}>
+        <{/foreach}>
+      <{/if}>
+      <!-- 结束 -->
+    </div>
+<{/if}>
+<script>
+$$('.items-ctls button[act]').each(function(btn){
+     var flow = btn.getPrevious('input[name="flow"]'),
+    disabled = btn.getPrevious('input[name="disabled"]'),
+    cfm_str = btn.get('confirm'),
+    _dialog = null,
+    _app  = btn.get('app'),
+    act_url = "?app="+_app+"&ctl=admin_check&act={action}&p[0]=<{$items.item_id}>";
+
+     if(disabled){
+       return btn.set({'opacity':.5,styles:{'cursor':'not-allowed'}});
+     }
+
+     btn.addEvent('click',function(){
+
+       if(cfm_str&&!confirm(cfm_str)){ return;  }
+       if(flow){
+
+       _dialog = new Dialog( act_url.substitute({'action':'go'+btn.get('act')}),
+      {title:btn.get('text')+":<{$items.title}>",width:.5,height:.3,onLoad:function(){
+
+            var _dialog_form = this.dialog;
+            this.dialog.getElement('form').store('target',{
+            onRequest:function(){
+            _dialog_form.getElement('.table-action .items-action').set('disabled','disabled');
+            },
+            onComplete:function(){
+
+             <{if !$env.get.singlepage}>
+                <{if $env.get.finder_id}>
+                  finderGroup['<{$env.get.finder_id}>'].request({
+                    method:'post',
+                    onComplete:function(){
+                       _dialog.close();
+                       this.loadPacket();//refersh finder packet(tabs);
+                    }});
+                <{/if}>
+              <{else}>
+                _dialog.close();
+                if (opener.finderGroup&&opener.finderGroup['<{$env.get.finder_id}>'])
+                  opener.finderGroup['<{$env.get.finder_id}>'].refresh();
+                 location.reload();
+              <{/if}>
+            }
+          });
+
+
+       }});
+
+       }else{
+        W.page( act_url.substitute({'action':'do'+btn.get('act')}),{onComplete:function(re){
+          try{re = JSON.decode(re)}catch(e){}
+          if(re&&re.error){return;}
+          <{if !$env.get.singlepage}>
+             <{if $env.get.finder_id}>
+              finderGroup['<{$env.get.finder_id}>'].refresh();
+             <{/if}>
+          <{else}>
+            if (opener.finderGroup&&opener.finderGroup['<{$env.get.finder_id}>'])
+              opener.finderGroup['<{$env.get.finder_id}>'].refresh();
+            location.reload();
+          <{/if}>
+
+        }});
+       }
+
+     });
+
+  });
+</script>
+</div>
+<div class="tableform">
+    <div class="division"> 
+        <table width="100%">
+          <tr>
+            <th><{t}>商品名：<{/t}></th>
+            <td><{$items.title}></td>
+            <th><{t}>积分兑换：<{/t}></th>
+            <td><{$items.integral|pot}></td><!-- 2016.4.29 by yangjie 添加|pot显示积分单位 -->
+            <th><{t}>混合价：<{/t}></th>
+            <td><{$items.blend}></td>
+            <th><{t}>销售价：<{/t}></th>
+            <td><{$items.price|cur}></td><!-- 2016.4.29 by yangjie 添加|cur显示金额单位 -->
+     <!--        <th><{t}>是否调整后积分：<{/t}></th>
+            <td><{$items.is_Adjusted}></td> -->
+            <th><{t}>申请审核次数：<{/t}></th>
+            <td><{$items.shenhe_num}></td>
+          </tr>
+        <!--   <tr>
+            <th><{t}>是否调整后积分：<{/t}></th>
+            <td><{$items.is_Adjusted}></td>
+            <th><{t}>价格审核次数：<{/t}></th>
+            <td><{$items.shenhe_num}></td>
+          </tr>
+          <tr>
+            <th><{t}>价格：<{/t}></th>
+            <td><{$items.price}></td>
+            <th><{t}>审核日期：<{/t}></th>
+            <td><{$items.regtime|cdate:'SDATE_STIME'}></td>
+          </tr> -->
+    </table>
+    </div>
+</div>

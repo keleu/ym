@@ -1,0 +1,23 @@
+<i class="icon icon-down"></i>
+<!-- <ul> 2016.4.21 by yangjie 移动<ul>到循环和判断里面-->
+  <{if $track.tracker}>
+  <{foreach from=$track.tracker item=tracker}>
+  <ul>
+  <li>
+    <div class="dot"></div>
+    <div class="step-con">
+      <!-- 2016.4.21 by yangjie 修改$row为$tracker -->
+      <div><{$tracker.AcceptStation}></div>
+      <div><{$tracker.AcceptTime}></div>
+    </div>
+  </li>
+  </ul>
+  <{/foreach}>
+  <{elseif $track.logmsg}>
+  <ul>
+  <li>
+    <{$track.logmsg}>
+  </li>
+  </ul>
+  <{/if}>
+<!-- </ul> -->

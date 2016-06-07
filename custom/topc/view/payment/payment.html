@@ -1,0 +1,133 @@
+<div id="dialog" style="display:none;">
+  <div class="payment-pop">
+    <div class="payment-pop-bd">
+      <div>请您在新打开的支付平台页面进行支付，支付完成前请不要关闭该窗口</div>
+      <div><a href="<{url action=topc_ctl_member_trade@tradeList}>" class="btn btn-simple"><span><span>已完成支付</span></span></a></div>
+    </div>
+    <!--
+    <div><a href="">选择其他支付方式</a></div>
+    -->
+  </div>
+</div>
+<div class="payment mod-bottom">
+  <{if $payment_type}>
+  <div class="payment-info">
+    <div class="col-lg-6 success-info">
+      <div class="success-info-l1"><i class="icon icon-checkmark-c"></i>下单成功，我们会尽快为您发货！</div>
+      <!-- 2016.4.18 by yangjie "付款积分:"改成"付款金额 :"-->
+      <div class="payment-line">付款金额：<span class="price">
+      <!-- <{$trades.cur_money|cur}> -->
+         <{if $trades.cur_money == 0 && $trades.payment_integral}>
+          <{$trades.payment_integral|pot}>
+        <{elseif $trades.cur_money && $trades.payment_integral==0}>
+          <{$trades.cur_money|cur}>
+        <{else}>
+         <{$trades.cur_money|cur}>+<{$trades.payment_integral|pot}><{/if}>
+      </span></div>
+      <div class="payment-line">您可以：<a href="<{url action=topc_ctl_member_trade@tradeList}>">查看我的订单</a></div>
+    </div>
+  </div>
+  <{else}>
+  <div class="payment-info">
+    <div class="col-lg-6 success-info">
+      <div class="success-info-l1"><i class="icon icon-checkmark-c"></i>订单提交成功，请您尽快付款！</div>
+      <div class="success-info-l2"></div>
+      <div class="payment-line">应付总计：<span class="price"><{$trades.money_blend}></span></div>
+    </div>
+  </div>
+  <div class="payment-choose">
+    <form id="dopay_form" target="_blank" action="<{url action=topc_ctl_paycenter@dopayment}>" method="post" data-async="false">
+      <input type="hidden" name="payment[payment_id]" value="<{$trades.payment_id}>">
+      <input type="hidden" name="payment[money]" value="<{$trades.cur_money}>">
+      <input type="hidden" name="payment[money_integral]" value="<{$trades.money_integral}>">
+      <input type="hidden" name="payment[tids]" value="<{$tids}>">
+     
+      <{if $trades.cur_money=='0.000'}>
+       <div class="payment-choose-tab">积分支付</div>
+      <div class="payment-choose-bd">
+        <div class="payment-choose-list">
+          <div class="payment-choose-item">
+            积分余额：<font color="red"><{$point_count}></font>
+          </div>
+           <{if $point_count<$trades.money_integral}>
+              <span class="form-act"> <em><font color="red">积分余额不足</font></em></span>
+            <{/if}>
+        </div>
+        <div class="payment-choose-list">
+          <{if $point_count >= $trades.cur_money}>
+            <button  id="go_dopay" type="button" class="form-submit  action-prepaid" ><span>去付款</span></button>
+            <input type="hidden" name="payment[pay_app_id]" value="integral">
+          <{/if}>
+      </div>
+      <{else}>
+       <div class="payment-choose-tab">支付平台</div>
+      <div class="payment-choose-bd">
+        <div>选择支付方式&nbsp;&nbsp;(积分余额：<font color="red"><{$point_count}></font>)</div>
+        <{if $payments}>
+        <div class="payment-choose-list form-row">
+          <{if $point_count<$trades.money_integral}>
+              <div class="payment-choose-item"><font color="red">积分余额不足</font></div>
+          <{else}> 
+            <{foreach from=$payments item=item}>
+            <{if $item.app_name=='积分支付'}><{continue}><{/if}>
+            <div class="payment-choose-item">
+              <input type="radio" name="payment[pay_app_id]" value="<{$item.app_id}>" data-validate="onerequired"> <{$item.app_name}><img src="<{$item.img}>" alt="" width="150" height="34">
+            </div>
+            <{/foreach}>
+          <{/if}>
+        </div>
+        <{if $point_count>=$trades.money_integral}><button type="submit" class="btn btn-import btn-lg act-next"><span><span>下一步</span></span></button><{/if}>
+        <{else}>
+        <div class="payment-choose-list">
+          <div class="payment-choose-item">
+            没有可用的支付方式，请联系商家协调
+          </div>
+        </div>
+        <{/if}>
+      </div>
+      <{/if}>
+    </form>
+  </div>
+   <div class="payment-line">
+    您可以：<a href="<{url action=topc_ctl_member_trade@tradeList}>">查看我的订单</a>
+  </div>
+  <{/if}>
+</div>
+<script>
+  $('.btn_dialog').click(function (e) {
+    $('#dialog').dialog({
+      width: 480,
+    title:'登录平台支付'
+    });
+  });
+
+
+$(function(){
+    $('#go_dopay').click(function(){
+      document.getElementById("go_dopay").setAttribute("id","gogo");
+      if(confirm("确认支付此订单吗？")){
+          $('.action-prepaid').attr('type','submit').click().attr('type','button');
+      }else{
+        document.getElementById("gogo").setAttribute("id","go_dopay");
+      }
+  });
+})
+
+//2016-4-15 by jianghui 监视浏览器后退事件 解决点击后退报错问题
+jQuery(document).ready(function ($) {
+  if (window.history && window.history.pushState) {
+      $(window).on('popstate', function () {
+          var hashLocation = location.hash;
+          var hashSplit = hashLocation.split("#!/");
+          var hashName = hashSplit[1];
+          if (hashName !== '') {
+              var hash = window.location.hash;
+              if (hash === '') {
+                window.location.href="<{url action=topc_ctl_member_trade@tradeList}>";
+              }
+          }
+      });
+      window.history.pushState('forward', null, '<{url action=topc_ctl_paycenter@index payment_id=$trades.payment_id}>');
+  }
+});
+</script>
